@@ -1,0 +1,114 @@
+{
+    "name": "@reactkits.dev/ai-connect",
+    "version": "0.0.1",
+    "description": "AI Management for React - Multi-provider settings, configuration, and cost tracking",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/papayaah/react-ai-management"
+    },
+    "homepage": "https://github.com/papayaah/react-ai-management#readme",
+    "bugs": {
+        "url": "https://github.com/papayaah/react-ai-management/issues"
+    },
+    "keywords": [
+        "react",
+        "ai",
+        "llm",
+        "openai",
+        "anthropic",
+        "google",
+        "gemini",
+        "mistral",
+        "cohere",
+        "vercel-ai-sdk",
+        "cost-tracking",
+        "headless",
+        "tailwind"
+    ],
+    "main": "dist/index.js",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./presets/tailwind": {
+            "import": "./dist/presets/tailwind.mjs",
+            "require": "./dist/presets/tailwind.js",
+            "types": "./dist/presets/tailwind.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "engines": {
+        "node": ">=20.19.0"
+    },
+    "scripts": {
+        "dev": "concurrently \"npm run storybook\" \"npm run dev:demo\" --names \"storybook,demo\" --prefix-colors \"blue,green\"",
+        "dev:demo": "npm run build && cd demo && npm run dev",
+        "dev:demo:watch": "concurrently \"npm run build:watch\" \"npm run dev:demo\" --names \"build,demo\" --prefix-colors \"yellow,green\"",
+        "build": "vite build",
+        "build:watch": "vite build --watch",
+        "build:demo": "npm run build && cd demo && npm run build",
+        "lint": "eslint .",
+        "preview": "vite preview",
+        "preview:demo": "npm run build && cd demo && npm run preview",
+        "storybook": "storybook dev",
+        "build-storybook": "storybook build"
+    },
+    "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "peerDependenciesMeta": {
+        "ai": {
+            "optional": true
+        },
+        "@ai-sdk/openai": {
+            "optional": true
+        },
+        "@ai-sdk/anthropic": {
+            "optional": true
+        },
+        "@ai-sdk/google": {
+            "optional": true
+        },
+        "@ai-sdk/mistral": {
+            "optional": true
+        },
+        "@ai-sdk/cohere": {
+            "optional": true
+        },
+        "@ai-sdk/xai": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@ai-sdk/anthropic": "^0.0.15",
+        "@ai-sdk/cohere": "^0.0.10",
+        "@ai-sdk/google": "^0.0.18",
+        "@ai-sdk/mistral": "^0.0.8",
+        "@ai-sdk/openai": "^0.0.20",
+        "@ai-sdk/xai": "^2.0.0",
+        "@storybook/react-vite": "^10.0.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^4.2.1",
+        "ai": "^3.0.0",
+        "autoprefixer": "^10.4.19",
+        "concurrently": "^9.2.1",
+        "lucide-react": "^0.554.0",
+        "postcss": "^8.4.38",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "storybook": "^10.0.0",
+        "tailwindcss": "^3.4.3",
+        "typescript": "^5.4.5",
+        "vite": "^5.2.0",
+        "vite-plugin-dts": "^3.9.0"
+    }
+}
