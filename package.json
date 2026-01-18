@@ -26,23 +26,31 @@
         "headless",
         "tailwind"
     ],
-    "main": "dist/index.js",
-    "module": "dist/index.mjs",
-    "types": "dist/index.d.ts",
+    "main": "src/index.ts",
+    "module": "src/index.ts",
+    "types": "index.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/index.mjs",
-            "require": "./dist/index.js",
-            "types": "./dist/index.d.ts"
+            "import": "./src/index.ts",
+            "types": "./index.d.ts"
         },
         "./presets/tailwind": {
-            "import": "./dist/presets/tailwind.mjs",
-            "require": "./dist/presets/tailwind.js",
-            "types": "./dist/presets/tailwind.d.ts"
+            "import": "./src/presets/tailwind.tsx",
+            "types": "./presets/tailwind.d.ts"
+        },
+        "./presets/default": {
+            "import": "./src/presets/default.tsx",
+            "types": "./presets/default.d.ts"
+        },
+        "./presets/lucide": {
+            "import": "./src/presets/lucide.tsx",
+            "types": "./presets/lucide.d.ts"
         }
     },
     "files": [
-        "dist"
+        "src",
+        "*.d.ts",
+        "presets"
     ],
     "engines": {
         "node": ">=20.19.0"
