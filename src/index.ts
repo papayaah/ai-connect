@@ -143,6 +143,7 @@ export {
     createUsageTracker,
     calculateCost,
     USAGE_TABLE_SQL,
+    READONLY_QUERY_FUNCTION_SQL,
 } from './core';
 export type {
     AskDatabaseOptions,

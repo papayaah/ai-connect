@@ -13,6 +13,7 @@ export {
   createUsageTracker,
   calculateCost,
   USAGE_TABLE_SQL,
+  READONLY_QUERY_FUNCTION_SQL,
   type UsageRecord,
   type UsageTrackerConfig,
 } from './usage-tracker';
