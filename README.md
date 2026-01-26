@@ -185,6 +185,80 @@ Your server endpoint should return:
 - optional `costUsd` (useful for per-image billing)
 - optional `provider`, `model`, `metadata`
 
+## Ask Database (Text-to-SQL)
+
+Natural language queries against your database. Works in Browser, Deno (Supabase Edge Functions), and Node.js.
+
+### Core API
+
+```typescript
+import { askDatabase } from '@reactkits.dev/ai-connect/core';
+
+const result = await askDatabase({
+  question: "How many restaurants are in Tokyo?",
+  apiKey: process.env.GEMINI_API_KEY,
+  provider: 'google',  // or 'openai', 'anthropic'
+  model: 'gemini-2.5-flash',
+  executeQuery: async (sql) => {
+    // Your database query function
+    const { rows } = await pool.query(sql);
+    return rows;
+  },
+});
+
+console.log(result.answer);    // "There are 89 restaurants in Tokyo."
+console.log(result.sql);       // "SELECT COUNT(*) FROM restaurants WHERE city = 'Tokyo'"
+console.log(result.rawData);   // [{ count: 89 }]
+```
+
+### Server Handlers
+
+Pre-built handlers for Supabase Edge Functions and Express:
+
+```typescript
+// Supabase Edge Function
+import { createSupabaseHandler } from '@reactkits.dev/ai-connect/server';
+
+const handler = createSupabaseHandler({
+  supabaseClient: supabase,
+  rpcFunctionName: 'execute_readonly_query',
+});
+
+Deno.serve(handler);
+```
+
+```typescript
+// Express/Node.js
+import { createExpressHandler } from '@reactkits.dev/ai-connect/server';
+
+app.post('/api/ask-database', createExpressHandler({
+  getApiKey: () => process.env.GEMINI_API_KEY,
+  executeQuery: async (sql) => {
+    const { rows } = await pool.query(sql);
+    return rows;
+  },
+}));
+```
+
+### SQL Safety
+
+Built-in validation blocks dangerous queries:
+
+```typescript
+import { validateSql, addSafetyLimits } from '@reactkits.dev/ai-connect/core';
+
+const validation = validateSql(sql);
+if (!validation.valid) {
+  throw new Error(validation.error);
+}
+
+// Add LIMIT if not present
+const safeSql = addSafetyLimits(sql, 1000);
+```
+
+**Blocked**: INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, CREATE, etc.
+**Protected**: password, api_key, secret, auth.users, pg_catalog columns
+
 ## Supported Providers
 
 - OpenAI (GPT-4, GPT-3.5, etc.)

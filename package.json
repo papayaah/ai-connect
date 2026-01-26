@@ -34,6 +34,14 @@
             "import": "./src/index.ts",
             "types": "./index.d.ts"
         },
+        "./core": {
+            "import": "./src/core/index.ts",
+            "types": "./core.d.ts"
+        },
+        "./server": {
+            "import": "./src/server/index.ts",
+            "types": "./server.d.ts"
+        },
         "./presets/tailwind": {
             "import": "./src/presets/tailwind.tsx",
             "types": "./presets/tailwind.d.ts"
@@ -94,6 +102,10 @@
         "@ai-sdk/xai": {
             "optional": true
         }
+    },
+    "dependencies": {
+        "ai": "^3.0.0",
+        "zod": "^3.22.0"
     },
     "devDependencies": {
         "@ai-sdk/anthropic": "^0.0.15",

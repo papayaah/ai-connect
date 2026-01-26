@@ -130,6 +130,33 @@ export type {
 } from './utils/hostedImageAPI';
 
 // ============================================================================
+// Core - Ask Database / Text-to-SQL
+// ============================================================================
+export {
+    askDatabase,
+    generateSql,
+    formatQueryResults,
+    validateSql,
+    addSafetyLimits,
+    DATABASE_SCHEMA,
+    buildSchemaContext,
+    createUsageTracker,
+    calculateCost,
+    USAGE_TABLE_SQL,
+} from './core';
+export type {
+    AskDatabaseOptions,
+    AskDatabaseResult,
+    GenerateSqlOptions,
+    GenerateSqlResult,
+    FormatResultsOptions,
+    SqlValidationResult,
+    SchemaConfig,
+    UsageRecord,
+    UsageTrackerConfig,
+} from './core';
+
+// ============================================================================
 // Types
 // ============================================================================
 export type {
