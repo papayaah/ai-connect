@@ -15,7 +15,14 @@ export {
   type TableSchema,
   type ColumnSchema,
 } from './schema/database-schema';
-export { generateObject, generateText, type AICallerOptions, type AIUsage } from './ai-caller';
+export {
+  generateObject,
+  generateText,
+  type LanguageModel,
+  type AIUsage,
+  type GenerateObjectResult,
+  type GenerateTextResult,
+} from './ai-caller';
 export {
   createUsageTracker,
   calculateCost,

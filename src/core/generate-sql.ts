@@ -1,17 +1,32 @@
 /**
  * SQL Generation from Natural Language
- * Uses fetch-based AI calls - works in Browser, Deno, and Node.js
+ * Uses Vercel AI SDK - works in Node.js and Deno
  */
 
-import { generateObject } from './ai-caller';
+import { z } from 'zod';
+import { generateObject, type LanguageModel } from './ai-caller';
 import { buildSchemaContext, type SchemaConfig } from './schema/database-schema';
 
 export interface GenerateSqlOptions {
+  /** The natural language question to convert to SQL */
   question: string;
-  schema?: string | SchemaConfig;
-  model?: string;
-  apiKey: string;
-  provider?: 'google' | 'openai' | 'anthropic';
+
+  /**
+   * Your database schema - REQUIRED
+   * Can be a markdown string or a SchemaConfig object.
+   */
+  schema: string | SchemaConfig;
+
+  /**
+   * AI model instance from @ai-sdk/* provider
+   *
+   * @example
+   * ```typescript
+   * import { google } from '@ai-sdk/google';
+   * const model = google('gemini-2.5-flash');
+   * ```
+   */
+  model: LanguageModel;
 }
 
 export interface GenerateSqlResult {
@@ -23,18 +38,28 @@ export interface GenerateSqlResult {
   };
 }
 
+const sqlResponseSchema = z.object({
+  sql: z.string().describe('The PostgreSQL SELECT query to answer the question'),
+  explanation: z.string().describe('Brief explanation of what the query does'),
+});
+
 /**
  * Generates a SQL query from a natural language question
  *
  * @example
+ * ```typescript
+ * import { google } from '@ai-sdk/google';
+ *
  * const result = await generateSql({
- *   question: "How many restaurants are in Tokyo?",
- *   apiKey: process.env.GEMINI_API_KEY,
+ *   question: "How many users signed up last month?",
+ *   schema: MY_APP_SCHEMA,
+ *   model: google('gemini-2.5-flash'),
  * });
- * console.log(result.sql); // SELECT COUNT(*) FROM restaurants WHERE city = 'Tokyo'
+ * console.log(result.sql); // SELECT COUNT(*) FROM users WHERE created_at >= ...
+ * ```
  */
 export async function generateSql(options: GenerateSqlOptions): Promise<GenerateSqlResult> {
-  const { question, schema, model = 'gemini-2.5-flash', apiKey, provider = 'google' } = options;
+  const { question, schema, model } = options;
 
   // Build schema context - schema is required from the consumer
   if (!schema) {
@@ -57,20 +82,11 @@ Rules:
 - Return only valid, executable SQL
 - Do not use SQL comments`;
 
-  const result = await generateObject<{ sql: string; explanation: string }>({
-    apiKey,
-    provider,
+  const result = await generateObject({
     model,
     system: systemPrompt,
     prompt: question,
-    schema: {
-      type: 'object',
-      properties: {
-        sql: { type: 'string', description: 'The PostgreSQL SELECT query to answer the question' },
-        explanation: { type: 'string', description: 'Brief explanation of what the query does' },
-      },
-      required: ['sql', 'explanation'],
-    },
+    schema: sqlResponseSchema,
   });
 
   return {

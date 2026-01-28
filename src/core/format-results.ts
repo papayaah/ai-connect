@@ -1,16 +1,28 @@
 /**
  * Format Query Results into Human-Readable Answers
- * Uses fetch-based AI calls - works in Browser, Deno, and Node.js
+ * Uses Vercel AI SDK - works in Node.js and Deno
  */
 
-import { generateText } from './ai-caller';
+import { generateText, type LanguageModel } from './ai-caller';
 
 export interface FormatResultsOptions {
+  /** The original question that was asked */
   question: string;
+
+  /** Raw data from the SQL query */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[];
-  model?: string;
-  apiKey: string;
-  provider?: 'google' | 'openai' | 'anthropic';
+
+  /**
+   * AI model instance from @ai-sdk/* provider
+   *
+   * @example
+   * ```typescript
+   * import { google } from '@ai-sdk/google';
+   * const model = google('gemini-2.5-flash');
+   * ```
+   */
+  model: LanguageModel;
 }
 
 export interface FormatResultsResult {
@@ -25,15 +37,19 @@ export interface FormatResultsResult {
  * Formats raw query results into a human-readable answer
  *
  * @example
+ * ```typescript
+ * import { google } from '@ai-sdk/google';
+ *
  * const result = await formatQueryResults({
- *   question: "How many restaurants are in Tokyo?",
+ *   question: "How many users signed up last month?",
  *   data: [{ count: 89 }],
- *   apiKey: process.env.GEMINI_API_KEY,
+ *   model: google('gemini-2.5-flash'),
  * });
- * console.log(result.answer); // "There are 89 restaurants in Tokyo."
+ * console.log(result.answer); // "There were 89 users who signed up last month."
+ * ```
  */
 export async function formatQueryResults(options: FormatResultsOptions): Promise<FormatResultsResult> {
-  const { question, data, model = 'gemini-2.5-flash', apiKey, provider = 'google' } = options;
+  const { question, data, model } = options;
 
   const systemPrompt = `You are a helpful assistant that explains database query results in plain English.
 Format numbers nicely (e.g., "1,247" not "1247").
@@ -49,8 +65,6 @@ ${JSON.stringify(data, null, 2)}
 Provide a clear, concise answer to the question based on these results.`;
 
   const result = await generateText({
-    apiKey,
-    provider,
     model,
     system: systemPrompt,
     prompt,

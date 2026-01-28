@@ -4,6 +4,7 @@
  */
 
 import { createFetchHandler, type FetchHandlerConfig } from './fetch-handler';
+import { type LanguageModel } from '../core/ai-caller';
 
 export interface SupabaseHandlerConfig {
   /**
@@ -12,20 +13,24 @@ export interface SupabaseHandlerConfig {
    */
   schema: string;
 
+  /**
+   * Function to get the AI model instance.
+   *
+   * @example
+   * ```typescript
+   * import { google } from '@ai-sdk/google';
+   *
+   * getModel: () => google('gemini-2.5-flash')
+   * ```
+   */
+  getModel: () => LanguageModel | Promise<LanguageModel>;
+
   /** Supabase client instance */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabaseClient: any; // SupabaseClient type - using any to avoid import issues in Deno
 
   /** Name of the RPC function to execute SQL (default: 'execute_readonly_query') */
   rpcFunctionName?: string;
-
-  /** Environment variable name for API key (default: 'GEMINI_API_KEY') */
-  apiKeyEnvVar?: string;
-
-  /** AI provider to use */
-  provider?: 'google' | 'openai' | 'anthropic';
-
-  /** Model to use */
-  model?: string;
 
   /** CORS origins to allow */
   corsOrigins?: string[];
@@ -35,10 +40,13 @@ export interface SupabaseHandlerConfig {
  * Creates a handler for Supabase Edge Functions
  *
  * @example
+ * ```typescript
  * // supabase/functions/ask-database/index.ts
  * import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
  * import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+ * import { google } from 'https://esm.sh/@ai-sdk/google';
  * import { createSupabaseHandler } from '@reactkits.dev/ai-connect/server';
+ * import { MY_APP_SCHEMA } from '../_shared/schema.ts';
  *
  * const supabase = createClient(
  *   Deno.env.get('SUPABASE_URL')!,
@@ -46,38 +54,19 @@ export interface SupabaseHandlerConfig {
  * );
  *
  * const handler = createSupabaseHandler({
+ *   schema: MY_APP_SCHEMA,
  *   supabaseClient: supabase,
+ *   getModel: () => google('gemini-2.5-flash'),
  * });
  *
  * serve(handler);
+ * ```
  */
 export function createSupabaseHandler(config: SupabaseHandlerConfig) {
-  const {
-    supabaseClient,
-    rpcFunctionName = 'execute_readonly_query',
-    apiKeyEnvVar = 'GEMINI_API_KEY',
-    provider = 'google',
-    model,
-    schema,
-    corsOrigins,
-  } = config;
-
-  // Check if we're in Deno environment
-  const isDeno = typeof (globalThis as any).Deno !== 'undefined';
+  const { supabaseClient, rpcFunctionName = 'execute_readonly_query', getModel, schema, corsOrigins } = config;
 
   const fetchConfig: FetchHandlerConfig = {
-    getApiKey: () => {
-      if (isDeno) {
-        const key = (globalThis as any).Deno.env.get(apiKeyEnvVar);
-        if (!key) throw new Error(`Missing environment variable: ${apiKeyEnvVar}`);
-        return key;
-      }
-      // Fallback for Node.js testing
-      const key = process.env[apiKeyEnvVar];
-      if (!key) throw new Error(`Missing environment variable: ${apiKeyEnvVar}`);
-      return key;
-    },
-
+    getModel,
     executeQuery: async (sql: string) => {
       const { data, error } = await supabaseClient.rpc(rpcFunctionName, { query: sql });
 
@@ -87,9 +76,6 @@ export function createSupabaseHandler(config: SupabaseHandlerConfig) {
 
       return data || [];
     },
-
-    provider,
-    model,
     schema,
     corsOrigins,
   };

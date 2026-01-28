@@ -1,12 +1,13 @@
 /**
  * Ask Database - Complete flow from question to answer
- * Uses Vercel AI SDK - works in Browser, Deno, and Node.js
+ * Uses Vercel AI SDK - works in Node.js and Deno
  */
 
 import { generateSql } from './generate-sql';
 import { formatQueryResults } from './format-results';
 import { validateSql, addSafetyLimits } from './sql-validator';
 import { type SchemaConfig } from './schema/database-schema';
+import { type LanguageModel } from './ai-caller';
 
 export interface AskDatabaseOptions {
   /** The natural language question to answer */
@@ -60,16 +61,19 @@ export interface AskDatabaseOptions {
    * }
    * ```
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executeQuery: (sql: string) => Promise<any[]>;
 
-  /** API key for the AI provider (Google, OpenAI, or Anthropic) */
-  apiKey: string;
-
-  /** AI provider to use (default: 'google') */
-  provider?: 'google' | 'openai' | 'anthropic';
-
-  /** Model to use for SQL generation and result formatting (default: 'gemini-2.5-flash') */
-  model?: string;
+  /**
+   * AI model instance from @ai-sdk/* provider
+   *
+   * @example
+   * ```typescript
+   * import { google } from '@ai-sdk/google';
+   * const model = google('gemini-2.5-flash');
+   * ```
+   */
+  model: LanguageModel;
 
   /** Maximum rows to return (default: 1000) */
   maxRows?: number;
@@ -92,6 +96,7 @@ export interface AskDatabaseResult {
   answer: string;
 
   /** Raw data from the query */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rawData: any[];
 
   /** Total execution time in milliseconds */
@@ -109,10 +114,15 @@ export interface AskDatabaseResult {
  * Complete flow: Question → SQL → Execute → Format Answer
  *
  * @example
+ * ```typescript
+ * import { google } from '@ai-sdk/google';
+ * import { askDatabase } from '@reactkits.dev/ai-connect/core';
+ *
  * // With Supabase
  * const result = await askDatabase({
- *   question: "How many restaurants are in Tokyo?",
- *   apiKey: process.env.GEMINI_API_KEY,
+ *   question: "How many orders were placed last month?",
+ *   schema: MY_APP_SCHEMA,
+ *   model: google('gemini-2.5-flash'),
  *   executeQuery: async (sql) => {
  *     const { data } = await supabase.rpc('execute_readonly_query', { query: sql });
  *     return data;
@@ -121,21 +131,25 @@ export interface AskDatabaseResult {
  *
  * // With pg (Node.js)
  * const result = await askDatabase({
- *   question: "How many restaurants are in Tokyo?",
- *   apiKey: process.env.GEMINI_API_KEY,
+ *   question: "How many orders were placed last month?",
+ *   schema: MY_APP_SCHEMA,
+ *   model: google('gemini-2.5-flash'),
  *   executeQuery: async (sql) => {
  *     const { rows } = await pool.query(sql);
  *     return rows;
  *   },
  * });
+ *
+ * console.log(result.answer);    // "There were 1,247 orders placed last month."
+ * console.log(result.sql);       // "SELECT COUNT(*) FROM orders WHERE..."
+ * console.log(result.rawData);   // [{ count: 1247 }]
+ * ```
  */
 export async function askDatabase(options: AskDatabaseOptions): Promise<AskDatabaseResult> {
   const {
     question,
     executeQuery,
-    apiKey,
-    provider = 'google',
-    model = 'gemini-2.5-flash',
+    model,
     schema,
     maxRows = 1000,
     formatResults: shouldFormat = true,
@@ -151,10 +165,7 @@ export async function askDatabase(options: AskDatabaseOptions): Promise<AskDatab
 
   try {
     // Race against timeout
-    return await Promise.race([
-      executeAskDatabase(),
-      timeoutPromise,
-    ]);
+    return await Promise.race([executeAskDatabase(), timeoutPromise]);
   } catch (error) {
     throw error;
   }
@@ -165,8 +176,6 @@ export async function askDatabase(options: AskDatabaseOptions): Promise<AskDatab
       question,
       schema,
       model,
-      apiKey,
-      provider,
     });
 
     // 2. Validate SQL
@@ -179,6 +188,7 @@ export async function askDatabase(options: AskDatabaseOptions): Promise<AskDatab
     const safeSql = addSafetyLimits(sqlResult.sql, maxRows);
 
     // 4. Execute query
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let rawData: any[];
     try {
       rawData = await executeQuery(safeSql);
@@ -195,8 +205,6 @@ export async function askDatabase(options: AskDatabaseOptions): Promise<AskDatab
         question,
         data: rawData,
         model,
-        apiKey,
-        provider,
       });
       answer = formatResult.answer;
       formattingUsage = formatResult.usage;

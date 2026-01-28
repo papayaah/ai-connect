@@ -24,6 +24,7 @@ export {
   type FormatResultsOptions,
   type SqlValidationResult,
   type SchemaConfig,
+  type LanguageModel,
 } from '../core';
 
 // Server-specific handlers

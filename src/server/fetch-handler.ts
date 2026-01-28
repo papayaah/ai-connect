@@ -4,6 +4,7 @@
  */
 
 import { askDatabase, type AskDatabaseResult } from '../core';
+import { type LanguageModel } from '../core/ai-caller';
 
 export interface FetchHandlerConfig {
   /**
@@ -12,17 +13,22 @@ export interface FetchHandlerConfig {
    */
   schema: string;
 
-  /** Function to get API key (from env, headers, etc.) */
-  getApiKey: () => string | Promise<string>;
+  /**
+   * Function to get the AI model instance.
+   * Called for each request, so you can dynamically select models.
+   *
+   * @example
+   * ```typescript
+   * import { google } from '@ai-sdk/google';
+   *
+   * getModel: () => google('gemini-2.5-flash')
+   * ```
+   */
+  getModel: () => LanguageModel | Promise<LanguageModel>;
 
   /** Function to execute SQL queries */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executeQuery: (sql: string) => Promise<any[]>;
-
-  /** AI provider to use */
-  provider?: 'google' | 'openai' | 'anthropic';
-
-  /** Model to use */
-  model?: string;
 
   /** Rate limit per minute (optional) */
   rateLimit?: number;
@@ -33,7 +39,6 @@ export interface FetchHandlerConfig {
 
 export interface AskDatabaseRequest {
   question: string;
-  model?: string;
   maxRows?: number;
   formatResults?: boolean;
 }
@@ -42,9 +47,13 @@ export interface AskDatabaseRequest {
  * Creates a fetch-compatible handler for the ask-database endpoint
  *
  * @example
+ * ```typescript
+ * import { google } from '@ai-sdk/google';
+ *
  * // Deno / Supabase Edge Function
  * const handler = createFetchHandler({
- *   getApiKey: () => Deno.env.get('GEMINI_API_KEY')!,
+ *   schema: MY_APP_SCHEMA,
+ *   getModel: () => google('gemini-2.5-flash'),
  *   executeQuery: async (sql) => {
  *     const { data } = await supabase.rpc('execute_readonly_query', { query: sql });
  *     return data;
@@ -52,26 +61,25 @@ export interface AskDatabaseRequest {
  * });
  *
  * Deno.serve(handler);
+ * ```
  *
  * @example
+ * ```typescript
+ * import { google } from '@ai-sdk/google';
+ *
  * // Node.js with native fetch
  * const handler = createFetchHandler({
- *   getApiKey: () => process.env.GEMINI_API_KEY!,
+ *   schema: MY_APP_SCHEMA,
+ *   getModel: () => google('gemini-2.5-flash'),
  *   executeQuery: async (sql) => {
  *     const { rows } = await pool.query(sql);
  *     return rows;
  *   },
  * });
+ * ```
  */
 export function createFetchHandler(config: FetchHandlerConfig) {
-  const {
-    getApiKey,
-    executeQuery,
-    provider = 'google',
-    model: defaultModel = 'gemini-2.5-flash',
-    schema,
-    corsOrigins = ['*'],
-  } = config;
+  const { getModel, executeQuery, schema, corsOrigins = ['*'] } = config;
 
   return async (request: Request): Promise<Response> => {
     // Handle CORS preflight
@@ -90,7 +98,7 @@ export function createFetchHandler(config: FetchHandlerConfig) {
     }
 
     try {
-      const body = await request.json() as AskDatabaseRequest;
+      const body = (await request.json()) as AskDatabaseRequest;
 
       if (!body.question || typeof body.question !== 'string') {
         return new Response(JSON.stringify({ error: 'Question is required' }), {
@@ -99,14 +107,12 @@ export function createFetchHandler(config: FetchHandlerConfig) {
         });
       }
 
-      const apiKey = await getApiKey();
+      const model = await getModel();
 
       const result: AskDatabaseResult = await askDatabase({
         question: body.question,
         executeQuery,
-        apiKey,
-        provider,
-        model: body.model || defaultModel,
+        model,
         schema,
         maxRows: body.maxRows,
         formatResults: body.formatResults,
@@ -116,7 +122,6 @@ export function createFetchHandler(config: FetchHandlerConfig) {
         status: 200,
         headers: { ...getCorsHeaders(corsOrigins), 'Content-Type': 'application/json' },
       });
-
     } catch (error) {
       console.error('[ai-connect] Error:', error);
 
