@@ -138,10 +138,11 @@ export {
     formatQueryResults,
     validateSql,
     addSafetyLimits,
-    DATABASE_SCHEMA,
+    EXAMPLE_SCHEMA,
     buildSchemaContext,
+    createSchemaTemplate,
     createUsageTracker,
-    calculateCost,
+    calculateCost as calculateUsageCost,
     USAGE_TABLE_SQL,
     READONLY_QUERY_FUNCTION_SQL,
 } from './core';
@@ -153,6 +154,8 @@ export type {
     FormatResultsOptions,
     SqlValidationResult,
     SchemaConfig,
+    TableSchema,
+    ColumnSchema,
     UsageRecord,
     UsageTrackerConfig,
 } from './core';

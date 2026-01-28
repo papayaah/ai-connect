@@ -12,25 +12,69 @@ export interface AskDatabaseOptions {
   /** The natural language question to answer */
   question: string;
 
-  /** Function to execute SQL queries - injected for flexibility */
+  /**
+   * Your database schema description - REQUIRED
+   * Can be a markdown string or a SchemaConfig object.
+   *
+   * @example String format:
+   * ```
+   * const schema = `
+   * ## users
+   * | Column | Type | Description |
+   * |--------|------|-------------|
+   * | id | uuid | Primary key |
+   * | email | text | User email |
+   * `;
+   * ```
+   *
+   * @example SchemaConfig format:
+   * ```
+   * const schema: SchemaConfig = {
+   *   tables: [
+   *     { name: 'users', columns: [{ name: 'id', type: 'uuid' }, { name: 'email', type: 'text' }] }
+   *   ],
+   *   relationships: ['orders.user_id → users.id']
+   * };
+   * ```
+   */
+  schema: string | SchemaConfig;
+
+  /**
+   * Function to execute SQL queries against your database.
+   * This is how ai-connect communicates with YOUR database.
+   *
+   * @example Supabase:
+   * ```
+   * executeQuery: async (sql) => {
+   *   const { data, error } = await supabase.rpc('execute_readonly_query', { query: sql });
+   *   if (error) throw error;
+   *   return data;
+   * }
+   * ```
+   *
+   * @example Node.js pg:
+   * ```
+   * executeQuery: async (sql) => {
+   *   const { rows } = await pool.query(sql);
+   *   return rows;
+   * }
+   * ```
+   */
   executeQuery: (sql: string) => Promise<any[]>;
 
-  /** API key for the AI provider */
+  /** API key for the AI provider (Google, OpenAI, or Anthropic) */
   apiKey: string;
 
-  /** AI provider to use */
+  /** AI provider to use (default: 'google') */
   provider?: 'google' | 'openai' | 'anthropic';
 
-  /** Model to use for SQL generation and result formatting */
+  /** Model to use for SQL generation and result formatting (default: 'gemini-2.5-flash') */
   model?: string;
-
-  /** Custom database schema (defaults to built-in schema) */
-  schema?: string | SchemaConfig;
 
   /** Maximum rows to return (default: 1000) */
   maxRows?: number;
 
-  /** Whether to format results with AI (default: true) */
+  /** Whether to format results with AI into human-readable text (default: true) */
   formatResults?: boolean;
 
   /** Timeout in milliseconds (default: 30000) */

@@ -6,6 +6,12 @@
 import { askDatabase, type AskDatabaseResult } from '../core';
 
 export interface ExpressHandlerConfig {
+  /**
+   * Your database schema - REQUIRED
+   * Describes your tables and columns so the AI can generate correct SQL.
+   */
+  schema: string;
+
   /** Function to get API key */
   getApiKey: () => string | Promise<string>;
 
@@ -17,9 +23,6 @@ export interface ExpressHandlerConfig {
 
   /** Model to use */
   model?: string;
-
-  /** Custom schema (optional) */
-  schema?: string;
 }
 
 interface ExpressRequest {

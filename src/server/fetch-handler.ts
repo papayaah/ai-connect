@@ -6,6 +6,12 @@
 import { askDatabase, type AskDatabaseResult } from '../core';
 
 export interface FetchHandlerConfig {
+  /**
+   * Your database schema - REQUIRED
+   * Describes your tables and columns so the AI can generate correct SQL.
+   */
+  schema: string;
+
   /** Function to get API key (from env, headers, etc.) */
   getApiKey: () => string | Promise<string>;
 
@@ -17,9 +23,6 @@ export interface FetchHandlerConfig {
 
   /** Model to use */
   model?: string;
-
-  /** Custom schema (optional) */
-  schema?: string;
 
   /** Rate limit per minute (optional) */
   rateLimit?: number;

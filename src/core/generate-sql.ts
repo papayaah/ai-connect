@@ -4,7 +4,7 @@
  */
 
 import { generateObject } from './ai-caller';
-import { DATABASE_SCHEMA, buildSchemaContext, type SchemaConfig } from './schema/database-schema';
+import { buildSchemaContext, type SchemaConfig } from './schema/database-schema';
 
 export interface GenerateSqlOptions {
   question: string;
@@ -36,15 +36,12 @@ export interface GenerateSqlResult {
 export async function generateSql(options: GenerateSqlOptions): Promise<GenerateSqlResult> {
   const { question, schema, model = 'gemini-2.5-flash', apiKey, provider = 'google' } = options;
 
-  // Build schema context
-  let schemaContext: string;
+  // Build schema context - schema is required from the consumer
   if (!schema) {
-    schemaContext = DATABASE_SCHEMA;
-  } else if (typeof schema === 'string') {
-    schemaContext = schema;
-  } else {
-    schemaContext = buildSchemaContext(schema);
+    throw new Error('Schema is required. Pass your database schema as a string or SchemaConfig object.');
   }
+
+  const schemaContext = typeof schema === 'string' ? schema : buildSchemaContext(schema);
 
   const systemPrompt = `You are a PostgreSQL expert. Generate SQL queries based on the user's question.
 

@@ -187,28 +187,113 @@ Your server endpoint should return:
 
 ## Ask Database (Text-to-SQL)
 
-Natural language queries against your database. Works in Browser, Deno (Supabase Edge Functions), and Node.js.
+Natural language queries against your PostgreSQL database. Works in Browser, Deno (Supabase Edge Functions), and Node.js.
 
-### Core API
+### What You Provide (Consumer App)
+
+The package is **generic** - you must provide:
+
+1. **Schema** - Description of YOUR database tables (required)
+2. **executeQuery** - Callback to run SQL on YOUR database (required)
+3. **API Key** - Your AI provider key (required)
+
+### What the Package Provides
+
+- SQL generation from natural language
+- Query validation (blocks INSERT, DELETE, etc.)
+- Safety limits (auto-adds LIMIT)
+- Result formatting (AI-powered human-readable answers)
+- Multiple AI provider support (Google, OpenAI, Anthropic)
+
+### Step 1: Define Your Schema
+
+Create a schema file in YOUR app (not in the package):
+
+```typescript
+// my-app/shared/schema.ts
+export const MY_APP_SCHEMA = `
+You have access to a PostgreSQL database. Here are the tables and their columns:
+
+## users
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| email | text | User email |
+| name | text | Display name |
+| created_at | timestamptz | Account creation date |
+
+## orders
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to users |
+| total | decimal | Order total |
+| status | text | 'pending', 'completed', 'cancelled' |
+
+## Relationships
+- orders.user_id → users.id
+`;
+```
+
+Or use the structured interface:
+
+```typescript
+import { SchemaConfig, buildSchemaContext } from '@reactkits.dev/ai-connect/core';
+
+const mySchema: SchemaConfig = {
+  tables: [
+    {
+      name: 'users',
+      description: 'Application users',
+      columns: [
+        { name: 'id', type: 'uuid', description: 'Primary key' },
+        { name: 'email', type: 'text', description: 'User email' },
+        { name: 'password_hash', type: 'text', sensitive: true }, // Hidden from AI
+      ]
+    }
+  ],
+  relationships: ['orders.user_id → users.id'],
+  customInstructions: 'Always filter by status = "active" unless asked otherwise.'
+};
+
+const schemaString = buildSchemaContext(mySchema);
+```
+
+### Step 2: Create Your Query Executor
+
+```typescript
+// Supabase example
+const executeQuery = async (sql: string) => {
+  const { data, error } = await supabase.rpc('execute_readonly_query', { query: sql });
+  if (error) throw error;
+  return data;
+};
+
+// Node.js pg example
+const executeQuery = async (sql: string) => {
+  const { rows } = await pool.query(sql);
+  return rows;
+};
+```
+
+### Step 3: Use askDatabase
 
 ```typescript
 import { askDatabase } from '@reactkits.dev/ai-connect/core';
+import { MY_APP_SCHEMA } from './schema';
 
 const result = await askDatabase({
-  question: "How many restaurants are in Tokyo?",
+  question: "How many orders were placed last month?",
+  schema: MY_APP_SCHEMA,  // YOUR schema (required)
+  executeQuery,            // YOUR db callback (required)
   apiKey: process.env.GEMINI_API_KEY,
-  provider: 'google',  // or 'openai', 'anthropic'
+  provider: 'google',
   model: 'gemini-2.5-flash',
-  executeQuery: async (sql) => {
-    // Your database query function
-    const { rows } = await pool.query(sql);
-    return rows;
-  },
 });
 
-console.log(result.answer);    // "There are 89 restaurants in Tokyo."
-console.log(result.sql);       // "SELECT COUNT(*) FROM restaurants WHERE city = 'Tokyo'"
-console.log(result.rawData);   // [{ count: 89 }]
+console.log(result.answer);    // "There were 1,247 orders placed last month."
+console.log(result.sql);       // "SELECT COUNT(*) FROM orders WHERE..."
+console.log(result.rawData);   // [{ count: 1247 }]
 ```
 
 ### Server Handlers
@@ -218,8 +303,10 @@ Pre-built handlers for Supabase Edge Functions and Express:
 ```typescript
 // Supabase Edge Function
 import { createSupabaseHandler } from '@reactkits.dev/ai-connect/server';
+import { MY_APP_SCHEMA } from '../_shared/schema.ts';
 
 const handler = createSupabaseHandler({
+  schema: MY_APP_SCHEMA,
   supabaseClient: supabase,
   rpcFunctionName: 'execute_readonly_query',
 });
@@ -230,8 +317,10 @@ Deno.serve(handler);
 ```typescript
 // Express/Node.js
 import { createExpressHandler } from '@reactkits.dev/ai-connect/server';
+import { MY_APP_SCHEMA } from './schema';
 
 app.post('/api/ask-database', createExpressHandler({
+  schema: MY_APP_SCHEMA,
   getApiKey: () => process.env.GEMINI_API_KEY,
   executeQuery: async (sql) => {
     const { rows } = await pool.query(sql);
@@ -258,6 +347,29 @@ const safeSql = addSafetyLimits(sql, 1000);
 
 **Blocked**: INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, CREATE, etc.
 **Protected**: password, api_key, secret, auth.users, pg_catalog columns
+
+### Schema Types Reference
+
+```typescript
+interface SchemaConfig {
+  tables: TableSchema[];
+  relationships?: string[];           // e.g., ['orders.user_id → users.id']
+  customInstructions?: string;        // Business rules for the AI
+}
+
+interface TableSchema {
+  name: string;
+  description?: string;
+  columns: ColumnSchema[];
+}
+
+interface ColumnSchema {
+  name: string;
+  type: string;                       // PostgreSQL type
+  description?: string;
+  sensitive?: boolean;                // If true, hidden from AI
+}
+```
 
 ## Supported Providers
 

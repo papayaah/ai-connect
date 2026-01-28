@@ -7,7 +7,14 @@ export { generateSql, type GenerateSqlOptions, type GenerateSqlResult } from './
 export { validateSql, addSafetyLimits, type SqlValidationResult } from './sql-validator';
 export { formatQueryResults, type FormatResultsOptions } from './format-results';
 export { askDatabase, type AskDatabaseOptions, type AskDatabaseResult } from './ask-database';
-export { DATABASE_SCHEMA, buildSchemaContext, type SchemaConfig } from './schema/database-schema';
+export {
+  EXAMPLE_SCHEMA,
+  buildSchemaContext,
+  createSchemaTemplate,
+  type SchemaConfig,
+  type TableSchema,
+  type ColumnSchema,
+} from './schema/database-schema';
 export { generateObject, generateText, type AICallerOptions, type AIUsage } from './ai-caller';
 export {
   createUsageTracker,

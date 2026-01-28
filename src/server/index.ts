@@ -15,7 +15,7 @@ export {
   formatQueryResults,
   validateSql,
   addSafetyLimits,
-  DATABASE_SCHEMA,
+  EXAMPLE_SCHEMA,
   buildSchemaContext,
   type AskDatabaseOptions,
   type AskDatabaseResult,

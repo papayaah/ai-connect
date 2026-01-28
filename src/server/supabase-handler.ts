@@ -6,6 +6,12 @@
 import { createFetchHandler, type FetchHandlerConfig } from './fetch-handler';
 
 export interface SupabaseHandlerConfig {
+  /**
+   * Your database schema - REQUIRED
+   * Describes your tables and columns so the AI can generate correct SQL.
+   */
+  schema: string;
+
   /** Supabase client instance */
   supabaseClient: any; // SupabaseClient type - using any to avoid import issues in Deno
 
@@ -20,9 +26,6 @@ export interface SupabaseHandlerConfig {
 
   /** Model to use */
   model?: string;
-
-  /** Custom schema (optional) */
-  schema?: string;
 
   /** CORS origins to allow */
   corsOrigins?: string[];
