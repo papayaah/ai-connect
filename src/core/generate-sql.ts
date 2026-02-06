@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { generateObject, type LanguageModel } from './ai-caller';
-import { buildSchemaContext, type SchemaConfig } from './schema/database-schema';
+import { generateObject, type LanguageModel } from './ai-caller.ts';
+import { buildSchemaContext, type SchemaConfig } from './schema/database-schema.ts';
 
 export interface GenerateSqlOptions {
   /** The natural language question to convert to SQL */

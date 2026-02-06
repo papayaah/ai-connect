@@ -3,10 +3,10 @@
  * Import from '@reactkits.dev/ai-connect/core'
  */
 
-export { generateSql, type GenerateSqlOptions, type GenerateSqlResult } from './generate-sql';
-export { validateSql, addSafetyLimits, type SqlValidationResult } from './sql-validator';
-export { formatQueryResults, type FormatResultsOptions } from './format-results';
-export { askDatabase, type AskDatabaseOptions, type AskDatabaseResult } from './ask-database';
+export { generateSql, type GenerateSqlOptions, type GenerateSqlResult } from './generate-sql.ts';
+export { validateSql, addSafetyLimits, type SqlValidationResult } from './sql-validator.ts';
+export { formatQueryResults, type FormatResultsOptions } from './format-results.ts';
+export { askDatabase, type AskDatabaseOptions, type AskDatabaseResult } from './ask-database.ts';
 export {
   EXAMPLE_SCHEMA,
   buildSchemaContext,
@@ -14,7 +14,7 @@ export {
   type SchemaConfig,
   type TableSchema,
   type ColumnSchema,
-} from './schema/database-schema';
+} from './schema/database-schema.ts';
 export {
   generateObject,
   generateText,
@@ -22,7 +22,7 @@ export {
   type AIUsage,
   type GenerateObjectResult,
   type GenerateTextResult,
-} from './ai-caller';
+} from './ai-caller.ts';
 export {
   createUsageTracker,
   calculateCost,
@@ -30,4 +30,4 @@ export {
   READONLY_QUERY_FUNCTION_SQL,
   type UsageRecord,
   type UsageTrackerConfig,
-} from './usage-tracker';
+} from './usage-tracker.ts';

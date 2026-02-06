@@ -3,11 +3,11 @@
  * Uses Vercel AI SDK - works in Node.js and Deno
  */
 
-import { generateSql } from './generate-sql';
-import { formatQueryResults } from './format-results';
-import { validateSql, addSafetyLimits } from './sql-validator';
-import { type SchemaConfig } from './schema/database-schema';
-import { type LanguageModel } from './ai-caller';
+import { generateSql } from './generate-sql.ts';
+import { formatQueryResults } from './format-results.ts';
+import { validateSql, addSafetyLimits } from './sql-validator.ts';
+import { type SchemaConfig } from './schema/database-schema.ts';
+import { type LanguageModel } from './ai-caller.ts';
 
 export interface AskDatabaseOptions {
   /** The natural language question to answer */
