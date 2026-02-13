@@ -84,73 +84,57 @@ export async function createVercelAIModel(config: CustomLLMConfig): Promise<any>
     try {
         switch (provider) {
             case 'openai': {
-                const { openai } = await import('@ai-sdk/openai');
-                return openai(model, {
-                    apiKey,
-                    baseURL: baseUrl,
-                });
+                try {
+                    const { openai } = await import('@ai-sdk/openai');
+                    return openai(model, { apiKey, baseURL: baseUrl });
+                } catch (e) { throw new Error('Please install @ai-sdk/openai to use OpenAI'); }
             }
             case 'anthropic': {
-                const { anthropic } = await import('@ai-sdk/anthropic');
-                return anthropic(model, {
-                    apiKey,
-                    baseURL: baseUrl,
-                });
+                try {
+                    const { anthropic } = await import('@ai-sdk/anthropic');
+                    return anthropic(model, { apiKey, baseURL: baseUrl });
+                } catch (e) { throw new Error('Please install @ai-sdk/anthropic to use Anthropic'); }
             }
             case 'google': {
-                const { google } = await import('@ai-sdk/google');
-                return google(model, {
-                    apiKey,
-                    baseURL: baseUrl,
-                });
+                try {
+                    const { google } = await import('@ai-sdk/google');
+                    return google(model, { apiKey, baseURL: baseUrl });
+                } catch (e) { throw new Error('Please install @ai-sdk/google to use Google'); }
             }
             case 'mistral': {
-                const { mistral } = await import('@ai-sdk/mistral');
-                return mistral(model, {
-                    apiKey,
-                    baseURL: baseUrl,
-                });
+                try {
+                    const { mistral } = await import('@ai-sdk/mistral');
+                    return mistral(model, { apiKey, baseURL: baseUrl });
+                } catch (e) { throw new Error('Please install @ai-sdk/mistral to use Mistral'); }
             }
             case 'cohere': {
-                const { cohere } = await import('@ai-sdk/cohere');
-                return cohere(model, {
-                    apiKey,
-                    baseURL: baseUrl,
-                });
+                try {
+                    const { cohere } = await import('@ai-sdk/cohere');
+                    return cohere(model, { apiKey, baseURL: baseUrl });
+                } catch (e) { throw new Error('Please install @ai-sdk/cohere to use Cohere'); }
             }
             case 'xai': {
-                const { createXai } = await import('@ai-sdk/xai');
-                return createXai({
-                    apiKey,
-                    baseURL: baseUrl,
-                })(model);
+                try {
+                    const { createXai } = await import('@ai-sdk/xai');
+                    return createXai({ apiKey, baseURL: baseUrl })(model);
+                } catch (e) { throw new Error('Please install @ai-sdk/xai to use xAI'); }
             }
             case 'perplexity': {
-                // Perplexity uses OpenAI-compatible API
-                const { openai } = await import('@ai-sdk/openai');
-                return openai(model, {
-                    apiKey,
-                    baseURL: baseUrl || 'https://api.perplexity.ai',
-                });
+                try {
+                    const { openai } = await import('@ai-sdk/openai');
+                    return openai(model, { apiKey, baseURL: baseUrl || 'https://api.perplexity.ai' });
+                } catch (e) { throw new Error('Please install @ai-sdk/openai to use Perplexity'); }
             }
             case 'openrouter': {
-                // OpenRouter uses OpenAI-compatible API
-                const { openai } = await import('@ai-sdk/openai');
-                return openai(model, {
-                    apiKey,
-                    baseURL: baseUrl || 'https://openrouter.ai/api/v1',
-                });
+                try {
+                    const { openai } = await import('@ai-sdk/openai');
+                    return openai(model, { apiKey, baseURL: baseUrl || 'https://openrouter.ai/api/v1' });
+                } catch (e) { throw new Error('Please install @ai-sdk/openai to use OpenRouter'); }
             }
             default:
                 throw new Error(`Unsupported provider: ${provider}`);
         }
     } catch (error) {
-        if (error instanceof Error && error.message.includes('Cannot find module')) {
-            throw new Error(
-                `Vercel AI SDK package for ${provider} is not installed. ` +
-                `Please install @ai-sdk/${provider === 'openrouter' ? 'openai' : provider}`
-            );
-        }
         throw error;
     }
 }
@@ -178,11 +162,11 @@ export class AIService {
         const { storage, initialConfig } = options;
         this.settingsService = createAISettingsService(storage);
         this.costTrackingService = createCostTrackingService(storage);
-        
+
         if (initialConfig) {
             this.settingsService.setProviderConfig(initialConfig);
         }
-        
+
         this.currentConfig = this.settingsService.getProviderConfig();
     }
 
@@ -191,7 +175,7 @@ export class AIService {
      */
     async initialize(): Promise<void> {
         const config = this.settingsService.getProviderConfig();
-        
+
         if (!config) {
             throw new Error('No AI provider configuration found. Please configure a provider first.');
         }
@@ -215,7 +199,7 @@ export class AIService {
      */
     async generateText<T = string>(options: AICallOptions): Promise<AICallResult<T>> {
         const config = this.settingsService.getProviderConfig();
-        
+
         if (!config) {
             throw new Error('No AI provider configured');
         }
@@ -302,7 +286,7 @@ export class AIService {
      */
     async streamText(options: AICallOptions): Promise<ReadableStream<string>> {
         const config = this.settingsService.getProviderConfig();
-        
+
         if (!config || config.type !== 'custom-llm' || !config.customLLM) {
             throw new Error('Streaming is only supported for custom LLM providers');
         }

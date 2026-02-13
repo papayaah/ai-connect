@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useCallback } from 'react';
 import type { APIKeyInputProps } from '../types';
 import { defaultPreset } from '../presets/default';

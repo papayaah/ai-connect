@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import type { ChromeAIStatusProps } from '../types';
 import { defaultPreset } from '../presets/default';
