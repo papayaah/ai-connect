@@ -7,6 +7,7 @@ import {
     AIService,
     createAIService,
     type AICallOptions,
+    type AIVisionCallOptions,
     type AICallResult,
 } from '../services/aiService';
 import { useAIProvider } from './useAIProvider';
@@ -35,6 +36,8 @@ export interface UseAIServiceReturn {
     initialize: () => Promise<void>;
     /** Generate text using the configured provider */
     generateText: <T = string>(options: AICallOptions) => Promise<AICallResult<T>>;
+    /** Generate text from an image + text prompt (vision) */
+    generateTextWithImage: <T = string>(options: AIVisionCallOptions) => Promise<AICallResult<T>>;
     /** Stream text from the configured provider */
     streamText: (options: AICallOptions) => Promise<ReadableStream<string>>;
     /** Current provider configuration */
@@ -118,6 +121,28 @@ export const useAIService = (
         [service, isInitialized, initialize]
     );
 
+    // Generate text with image (vision) wrapper
+    const generateTextWithImage = useCallback(
+        async <T = string>(options: AIVisionCallOptions): Promise<AICallResult<T>> => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                if (!isInitialized) {
+                    await initialize();
+                }
+                const result = await service.generateTextWithImage<T>(options);
+                return result;
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'AI vision call failed';
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [service, isInitialized, initialize]
+    );
+
     // Stream text wrapper
     const streamText = useCallback(
         async (options: AICallOptions): Promise<ReadableStream<string>> => {
@@ -150,6 +175,7 @@ export const useAIService = (
         error,
         initialize,
         generateText,
+        generateTextWithImage,
         streamText,
         config: providerConfig,
         isCustomProviderConfigured,

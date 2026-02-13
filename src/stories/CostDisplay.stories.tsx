@@ -13,7 +13,7 @@ const meta: Meta<typeof CostDisplay> = {
     argTypes: {
         provider: {
             control: 'select',
-            options: ['openai', 'anthropic', 'google', 'mistral', 'cohere', 'xai', 'perplexity'],
+            options: ['openai', 'anthropic', 'google', 'mistral', 'cohere', 'xai', 'perplexity', 'openrouter'],
         },
         showMonthlyEstimate: {
             control: 'boolean',
@@ -68,6 +68,16 @@ export const GoogleGemini: Story = {
     args: {
         provider: 'google',
         model: 'gemini-2.0-flash',
+        showMonthlyEstimate: true,
+        analysesPerMonth: 10,
+        preset: defaultPreset,
+    },
+};
+
+export const OpenRouterFree: Story = {
+    args: {
+        provider: 'openrouter',
+        model: 'google/gemini-2.0-flash-exp:free',
         showMonthlyEstimate: true,
         analysesPerMonth: 10,
         preset: defaultPreset,

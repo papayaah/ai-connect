@@ -28,6 +28,16 @@ export interface AICallOptions {
 }
 
 /**
+ * Options for making AI API calls with image input (vision)
+ */
+export interface AIVisionCallOptions extends AICallOptions {
+    /** Image data as base64 data URL (e.g. "data:image/png;base64,...") or raw Uint8Array */
+    image: string | Uint8Array;
+    /** MIME type of the image (required when image is Uint8Array) */
+    mimeType?: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+}
+
+/**
  * Result from an AI API call
  */
 export interface AICallResult<T = string> {
@@ -123,6 +133,14 @@ export async function createVercelAIModel(config: CustomLLMConfig): Promise<any>
                     baseURL: baseUrl || 'https://api.perplexity.ai',
                 });
             }
+            case 'openrouter': {
+                // OpenRouter uses OpenAI-compatible API
+                const { openai } = await import('@ai-sdk/openai');
+                return openai(model, {
+                    apiKey,
+                    baseURL: baseUrl || 'https://openrouter.ai/api/v1',
+                });
+            }
             default:
                 throw new Error(`Unsupported provider: ${provider}`);
         }
@@ -130,7 +148,7 @@ export async function createVercelAIModel(config: CustomLLMConfig): Promise<any>
         if (error instanceof Error && error.message.includes('Cannot find module')) {
             throw new Error(
                 `Vercel AI SDK package for ${provider} is not installed. ` +
-                `Please install @ai-sdk/${provider === 'xai' ? 'xai' : provider}`
+                `Please install @ai-sdk/${provider === 'openrouter' ? 'openai' : provider}`
             );
         }
         throw error;
@@ -312,6 +330,85 @@ export class AIService {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             throw new Error(
                 `AI streaming failed (${config.customLLM.provider}): ${errorMessage}`
+            );
+        }
+    }
+
+    /**
+     * Generate text from an image + text prompt (vision)
+     *
+     * Uses the Vercel AI SDK's multimodal message format to send an image
+     * alongside a text prompt to a vision-capable model.
+     *
+     * @param options - Call options including image data, prompt, and settings
+     * @returns Promise resolving to the AI response with usage data
+     */
+    async generateTextWithImage<T = string>(options: AIVisionCallOptions): Promise<AICallResult<T>> {
+        const config = this.settingsService.getProviderConfig();
+
+        if (!config || config.type !== 'custom-llm' || !config.customLLM) {
+            throw new Error('Vision requires a custom LLM provider to be configured');
+        }
+
+        const llmConfig = config.customLLM;
+
+        // Ensure model is initialized
+        if (!this.currentModel || this.currentConfig?.customLLM?.provider !== llmConfig.provider) {
+            this.currentModel = await createVercelAIModel(llmConfig);
+        }
+
+        const { generateText } = await import('ai');
+
+        try {
+            const result = await generateText({
+                model: this.currentModel,
+                system: options.systemPrompt,
+                temperature: options.temperature,
+                maxTokens: options.maxTokens,
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'image',
+                                image: options.image,
+                                mimeType: options.mimeType,
+                            },
+                            {
+                                type: 'text',
+                                text: options.prompt,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            const usage: TokenUsage = {
+                inputTokens: result.usage?.promptTokens ?? 0,
+                outputTokens: result.usage?.completionTokens ?? 0,
+                totalTokens: result.usage?.totalTokens ?? 0,
+            };
+
+            const shouldTrackCosts = options.trackCosts !== false;
+            if (shouldTrackCosts) {
+                this.costTrackingService.recordApiCall(
+                    llmConfig.provider,
+                    llmConfig.model,
+                    usage
+                );
+            }
+
+            return {
+                text: result.text as T,
+                usage,
+                provider: llmConfig.provider,
+                model: llmConfig.model,
+                rawResponse: result,
+            };
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(
+                `AI vision call failed (${llmConfig.provider}): ${errorMessage}`
             );
         }
     }

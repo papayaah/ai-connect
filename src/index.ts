@@ -47,6 +47,12 @@ export type {
     GeneratedImageFile,
 } from './hooks/useAIImageService';
 
+export { useAIVisionService } from './hooks/useAIVisionService';
+export type {
+    UseAIVisionServiceOptions,
+    UseAIVisionServiceReturn,
+} from './hooks/useAIVisionService';
+
 // ============================================================================
 // Presets
 // ============================================================================
@@ -82,6 +88,7 @@ export {
 } from './services/aiService';
 export type {
     AICallOptions,
+    AIVisionCallOptions,
     AICallResult,
     AIServiceOptions,
 } from './services/aiService';

@@ -26,6 +26,7 @@ export {
 } from './aiService';
 export type {
     AICallOptions,
+    AIVisionCallOptions,
     AICallResult,
     AIServiceOptions,
 } from './aiService';

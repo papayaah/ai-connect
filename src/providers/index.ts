@@ -302,6 +302,82 @@ const perplexityModels: ModelInfo[] = [
 }));
 
 // ============================================================================
+// OpenRouter Models (includes free models)
+// ============================================================================
+
+const openrouterModels: ModelInfo[] = [
+    {
+        id: 'google/gemini-2.0-flash-exp:free',
+        name: 'Gemini 2.0 Flash (Free)',
+        description: 'Free, 1M context, vision support',
+        pricing: createPricing(0, 0),
+        contextLength: 1000000,
+        costTier: 'budget',
+        recommended: true,
+    },
+    {
+        id: 'meta-llama/llama-3.3-70b-instruct:free',
+        name: 'Llama 3.3 70B (Free)',
+        description: 'Free, GPT-4 level performance',
+        pricing: createPricing(0, 0),
+        contextLength: 131072,
+        costTier: 'budget',
+    },
+    {
+        id: 'qwen/qwen3-235b-a22b:free',
+        name: 'Qwen3 235B (Free)',
+        description: 'Free, large MoE model',
+        pricing: createPricing(0, 0),
+        contextLength: 40960,
+        costTier: 'budget',
+    },
+    {
+        id: 'mistralai/mistral-small-3.1-24b-instruct:free',
+        name: 'Mistral Small 3.1 (Free)',
+        description: 'Free, efficient for structured tasks',
+        pricing: createPricing(0, 0),
+        contextLength: 131072,
+        costTier: 'budget',
+    },
+    {
+        id: 'anthropic/claude-sonnet-4',
+        name: 'Claude Sonnet 4',
+        description: 'Best balance of speed and intelligence',
+        pricing: createPricing(3.00, 15.00),
+        contextLength: 200000,
+        costTier: 'standard',
+    },
+    {
+        id: 'openai/gpt-4o',
+        name: 'GPT-4o',
+        description: 'Most capable OpenAI model',
+        pricing: createPricing(2.50, 10.00),
+        contextLength: 128000,
+        costTier: 'standard',
+    },
+    {
+        id: 'openai/gpt-4o-mini',
+        name: 'GPT-4o Mini',
+        description: 'Fast and affordable',
+        pricing: createPricing(0.15, 0.60),
+        contextLength: 128000,
+        costTier: 'budget',
+    },
+    {
+        id: 'google/gemini-2.5-flash',
+        name: 'Gemini 2.5 Flash',
+        description: 'Balanced speed and capability',
+        pricing: createPricing(0.15, 0.60),
+        contextLength: 1000000,
+        costTier: 'budget',
+    },
+].map(m => ({
+    ...m,
+    estimatedCostPerAnalysis: calculateEstimatedCost(m.pricing),
+    costTier: getCostTier(m.pricing),
+}));
+
+// ============================================================================
 // Provider Registry
 // ============================================================================
 
@@ -372,6 +448,16 @@ export const providers: Record<LLMProvider, ProviderInfo> = {
         apiKeyPattern: /^pplx-[a-zA-Z0-9]{20,}$/,
         apiKeyPlaceholder: 'pplx-...',
         docsUrl: 'https://www.perplexity.ai/settings/api',
+    },
+    openrouter: {
+        id: 'openrouter',
+        name: 'OpenRouter',
+        description: '300+ models including free ones',
+        models: openrouterModels,
+        defaultModel: 'google/gemini-2.0-flash-exp:free',
+        apiKeyPattern: /^sk-or-v1-[a-f0-9]{64}$/,
+        apiKeyPlaceholder: 'sk-or-v1-...',
+        docsUrl: 'https://openrouter.ai/keys',
     },
 };
 

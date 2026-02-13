@@ -14,7 +14,7 @@ const meta: Meta<typeof ModelSelector> = {
     argTypes: {
         provider: {
             control: 'select',
-            options: ['openai', 'anthropic', 'google', 'mistral', 'cohere', 'xai', 'perplexity'],
+            options: ['openai', 'anthropic', 'google', 'mistral', 'cohere', 'xai', 'perplexity', 'openrouter'],
         },
         showPricing: {
             control: 'boolean',
@@ -79,6 +79,16 @@ export const Mistral: Story = {
     args: {
         provider: 'mistral',
         selectedModel: 'mistral-small-latest',
+        showPricing: true,
+        preset: defaultPreset,
+    },
+};
+
+export const OpenRouter: Story = {
+    render: (args) => <ModelSelectorWrapper {...args} />,
+    args: {
+        provider: 'openrouter',
+        selectedModel: 'google/gemini-2.0-flash-exp:free',
         showPricing: true,
         preset: defaultPreset,
     },

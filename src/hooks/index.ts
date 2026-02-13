@@ -18,3 +18,6 @@ export type { UseRateLimitOptions, UseRateLimitReturn } from './useRateLimit';
 
 export { useAIService } from './useAIService';
 export type { UseAIServiceOptions, UseAIServiceReturn } from './useAIService';
+
+export { useAIVisionService } from './useAIVisionService';
+export type { UseAIVisionServiceOptions, UseAIVisionServiceReturn } from './useAIVisionService';

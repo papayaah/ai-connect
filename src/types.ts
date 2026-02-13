@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 // ============================================================================
 
 /** Supported LLM provider identifiers */
-export type LLMProvider = 'openai' | 'anthropic' | 'google' | 'cohere' | 'mistral' | 'xai' | 'perplexity';
+export type LLMProvider = 'openai' | 'anthropic' | 'google' | 'cohere' | 'mistral' | 'xai' | 'perplexity' | 'openrouter';
 
 /** AI provider type selection */
 export type AIProviderType = 'chrome' | 'hosted-api' | 'custom-llm';
