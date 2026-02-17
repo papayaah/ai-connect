@@ -1,6 +1,7 @@
 {
     "name": "@reactkits.dev/ai-connect",
     "version": "0.0.1",
+    "type": "module",
     "description": "AI Management for React - Multi-provider settings, configuration, and cost tracking",
     "license": "MIT",
     "repository": {
