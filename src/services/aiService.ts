@@ -97,9 +97,20 @@ export async function createVercelAIModel(config: CustomLLMConfig): Promise<any>
             }
             case 'google': {
                 try {
-                    const { google } = await import('@ai-sdk/google');
-                    return google(model, { apiKey, baseURL: baseUrl });
-                } catch (e) { throw new Error('Please install @ai-sdk/google to use Google'); }
+                    const sdk = await import('@ai-sdk/google') as any;
+                    if (sdk.createGoogleGenerativeAI) {
+                        return sdk.createGoogleGenerativeAI({
+                            apiKey: apiKey ?? undefined,
+                            baseURL: baseUrl ?? undefined,
+                        })(model);
+                    }
+                    return (sdk.google || sdk.default)(model, {
+                        apiKey: apiKey ?? undefined,
+                        baseURL: baseUrl ?? undefined
+                    });
+                } catch (e) {
+                    throw new Error('Please install @ai-sdk/google to use Google');
+                }
             }
             case 'mistral': {
                 try {

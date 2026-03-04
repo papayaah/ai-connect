@@ -13,7 +13,7 @@ import type {
 
 /**
  * Tailwind CSS Component Preset
- * Uses Tailwind CSS classes for styling
+ * Uses CSS variables for automatic dark/light mode support
  */
 export const tailwindPreset: ComponentPreset = {
     Card: ({ children, onClick, selected, disabled, className = '', style }: CardProps) => (
@@ -22,7 +22,7 @@ export const tailwindPreset: ComponentPreset = {
             className={`
                 border-2 rounded-lg p-4 transition-all
                 ${onClick && !disabled ? 'cursor-pointer hover:shadow-lg' : ''}
-                ${selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                ${selected ? 'border-accent bg-accent-light' : 'border-card-border bg-card-bg'}
                 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
                 ${className}
             `}
@@ -47,11 +47,11 @@ export const tailwindPreset: ComponentPreset = {
         'aria-label': ariaLabel,
     }: ButtonProps) => {
         const variants = {
-            primary: 'bg-blue-600 text-white hover:bg-blue-700',
-            secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
-            danger: 'bg-red-600 text-white hover:bg-red-700',
-            outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
-            ghost: 'text-gray-700 hover:bg-gray-100',
+            primary: 'bg-accent text-white hover:opacity-90',
+            secondary: 'bg-muted-bg text-foreground hover:opacity-80',
+            danger: 'bg-loss text-white hover:opacity-90',
+            outline: 'border border-card-border text-foreground hover:bg-muted-bg',
+            ghost: 'text-foreground hover:bg-muted-bg',
         };
 
         const sizes = {
@@ -94,33 +94,36 @@ export const tailwindPreset: ComponentPreset = {
         disabled,
         className = '',
     }: TextInputProps) => (
-        <div className={`relative w-full ${className}`}>
-            {leftIcon && (
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                    {leftIcon}
-                </div>
-            )}
-            <input
-                type={type}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-                disabled={disabled}
-                className={`
-                    w-full px-3 py-2 border rounded-md
-                    focus:outline-none focus:ring-2 focus:ring-blue-500
-                    ${leftIcon ? 'pl-10' : ''}
-                    ${rightIcon ? 'pr-10' : ''}
-                    ${error ? 'border-red-500' : 'border-gray-300'}
-                    ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
-                `}
-            />
-            {rightIcon && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                    {rightIcon}
-                </div>
-            )}
-            {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+        <div className={`w-full ${className}`}>
+            <div className="relative w-full">
+                {leftIcon && (
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+                        {leftIcon}
+                    </div>
+                )}
+                <input
+                    type={type}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    disabled={disabled}
+                    className={`
+                        w-full px-3 py-2 border rounded-md bg-card-bg text-foreground
+                        focus:outline-none focus:ring-2 focus:ring-accent
+                        placeholder:text-muted
+                        ${leftIcon ? 'pl-10' : ''}
+                        ${rightIcon ? 'pr-10' : ''}
+                        ${error ? 'border-loss' : 'border-card-border'}
+                        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                />
+                {rightIcon && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
+                        {rightIcon}
+                    </div>
+                )}
+            </div>
+            {error && <div className="text-loss text-sm mt-1">{error}</div>}
         </div>
     ),
 
@@ -141,7 +144,7 @@ export const tailwindPreset: ComponentPreset = {
                 {label && (
                     <label
                         htmlFor={selectId}
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="block text-sm font-medium text-foreground mb-1"
                     >
                         {label}
                     </label>
@@ -153,10 +156,10 @@ export const tailwindPreset: ComponentPreset = {
                     disabled={disabled}
                     aria-label={!label ? ariaLabel || placeholder : undefined}
                     className={`
-                        w-full px-3 py-2 border rounded-md bg-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500
-                        ${error ? 'border-red-500' : 'border-gray-300'}
-                        ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'cursor-pointer'}
+                        w-full px-3 py-2 border rounded-md bg-card-bg text-foreground
+                        focus:outline-none focus:ring-2 focus:ring-accent
+                        ${error ? 'border-loss' : 'border-card-border'}
+                        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                     `}
                 >
                     {placeholder && <option value="">{placeholder}</option>}
@@ -166,19 +169,19 @@ export const tailwindPreset: ComponentPreset = {
                         </option>
                     ))}
                 </select>
-                {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+                {error && <div className="text-loss text-sm mt-1">{error}</div>}
             </div>
         );
     },
 
     Badge: ({ children, variant = 'default', className = '' }: BadgeProps) => {
         const variants = {
-            default: 'bg-gray-100 text-gray-800',
-            primary: 'bg-blue-100 text-blue-800',
-            secondary: 'bg-purple-100 text-purple-800',
-            success: 'bg-green-100 text-green-800',
-            warning: 'bg-yellow-100 text-yellow-800',
-            danger: 'bg-red-100 text-red-800',
+            default: 'bg-muted-bg text-foreground',
+            primary: 'bg-accent-light text-accent',
+            secondary: 'bg-muted-bg text-muted',
+            success: 'bg-profit/15 text-profit',
+            warning: 'bg-amber-500/15 text-amber-500',
+            danger: 'bg-loss/15 text-loss',
         };
 
         return (
@@ -201,7 +204,7 @@ export const tailwindPreset: ComponentPreset = {
             <div
                 className={`
                     ${sizes[size]}
-                    border-gray-200 border-t-blue-600
+                    border-card-border border-t-accent
                     rounded-full animate-spin
                     ${className}
                 `}
@@ -211,10 +214,10 @@ export const tailwindPreset: ComponentPreset = {
 
     Alert: ({ children, variant = 'info', icon, className = '' }: AlertProps) => {
         const variants = {
-            info: 'bg-blue-50 border-blue-200 text-blue-800',
-            success: 'bg-green-50 border-green-200 text-green-800',
-            warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-            error: 'bg-red-50 border-red-200 text-red-800',
+            info: 'bg-accent-light border-accent/30 text-accent',
+            success: 'bg-profit/10 border-profit/30 text-profit',
+            warning: 'bg-amber-500/10 border-amber-500/30 text-amber-500',
+            error: 'bg-loss/10 border-loss/30 text-loss',
         };
 
         return (
@@ -237,7 +240,6 @@ export const tailwindPreset: ComponentPreset = {
             title={typeof content === 'string' ? content : undefined}
         >
             {children}
-            {/* Note: For a proper tooltip, you'd need a more complex implementation or a library */}
         </div>
     ),
 
@@ -246,10 +248,10 @@ export const tailwindPreset: ComponentPreset = {
 
         return (
             <div
-                className={`w-full h-2 bg-gray-200 rounded-full overflow-hidden ${className}`}
+                className={`w-full h-2 bg-muted-bg rounded-full overflow-hidden ${className}`}
             >
                 <div
-                    className="h-full bg-blue-600 transition-all duration-300"
+                    className="h-full bg-accent transition-all duration-300"
                     style={{ width: `${percentage}%` }}
                 />
             </div>

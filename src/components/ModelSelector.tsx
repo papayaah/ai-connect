@@ -26,7 +26,7 @@ export const ModelSelector = ({
     const selectedModelInfo = models.find((m) => m.id === selectedModel);
 
     return (
-        <div className={className} style={{ width: '100%' }}>
+        <div className={`w-full ${className}`}>
             <Select
                 value={selectedModel}
                 onChange={onModelSelect}
@@ -36,17 +36,9 @@ export const ModelSelector = ({
             />
 
             {showPricing && selectedModelInfo && (
-                <div
-                    style={{
-                        marginTop: '12px',
-                        padding: '12px',
-                        backgroundColor: '#f9fafb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                    }}
-                >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{ fontWeight: 500 }}>{selectedModelInfo.name}</span>
+                <div className="mt-3 p-3 bg-muted-bg rounded-lg text-sm">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">{selectedModelInfo.name}</span>
                         <Badge variant={
                             selectedModelInfo.costTier === 'budget' ? 'success' :
                             selectedModelInfo.costTier === 'standard' ? 'primary' :
@@ -56,41 +48,35 @@ export const ModelSelector = ({
                         </Badge>
                     </div>
 
-                    <p style={{ margin: '0 0 8px 0', color: '#6b7280' }}>
+                    <p className="m-0 mb-2 text-muted">
                         {selectedModelInfo.description}
                     </p>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px' }}>
+                    <div className="grid grid-cols-2 gap-2 text-[13px]">
                         <div>
-                            <span style={{ color: '#6b7280' }}>Input:</span>{' '}
-                            <span style={{ fontWeight: 500 }}>
+                            <span className="text-muted">Input:</span>{' '}
+                            <span className="font-medium">
                                 ${selectedModelInfo.pricing.inputCostPer1M.toFixed(2)}/1M tokens
                             </span>
                         </div>
                         <div>
-                            <span style={{ color: '#6b7280' }}>Output:</span>{' '}
-                            <span style={{ fontWeight: 500 }}>
+                            <span className="text-muted">Output:</span>{' '}
+                            <span className="font-medium">
                                 ${selectedModelInfo.pricing.outputCostPer1M.toFixed(2)}/1M tokens
                             </span>
                         </div>
                     </div>
 
                     {selectedModelInfo.estimatedCostPerAnalysis !== undefined && (
-                        <div
-                            style={{
-                                marginTop: '8px',
-                                paddingTop: '8px',
-                                borderTop: '1px solid #e5e7eb',
-                            }}
-                        >
-                            <span style={{ color: '#6b7280' }}>Est. cost per analysis:</span>{' '}
-                            <span style={{ fontWeight: 600, color: '#059669' }}>
+                        <div className="mt-2 pt-2 border-t border-card-border">
+                            <span className="text-muted">Est. cost per analysis:</span>{' '}
+                            <span className="font-semibold text-profit">
                                 ~{formatCost(selectedModelInfo.estimatedCostPerAnalysis)}
                             </span>
                         </div>
                     )}
 
-                    <div style={{ marginTop: '4px', color: '#9ca3af', fontSize: '12px' }}>
+                    <div className="mt-1 text-muted text-xs">
                         Context: {(selectedModelInfo.contextLength / 1000).toFixed(0)}K tokens
                     </div>
                 </div>

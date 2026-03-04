@@ -3,7 +3,7 @@
  * Uses Vercel AI SDK - works in Node.js and Deno
  */
 
-import { generateText, type LanguageModel } from './ai-caller.ts';
+import { generateText, type LanguageModel } from './ai-caller';
 
 export interface FormatResultsOptions {
   /** The original question that was asked */

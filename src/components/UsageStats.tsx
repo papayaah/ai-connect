@@ -16,9 +16,9 @@ export const UsageStats = ({
     if (!stats) {
         return (
             <Card className={className}>
-                <div style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>
-                    <p style={{ margin: 0 }}>No usage data yet</p>
-                    <p style={{ margin: '8px 0 0 0', fontSize: '14px' }}>
+                <div className="text-center py-6 text-muted">
+                    <p className="m-0">No usage data yet</p>
+                    <p className="mt-2 mb-0 text-sm">
                         Usage statistics will appear here after making API calls.
                     </p>
                 </div>
@@ -29,11 +29,11 @@ export const UsageStats = ({
     const providerEntries = Object.entries(stats.byProvider) as [LLMProvider, typeof stats.byProvider[LLMProvider]][];
 
     return (
-        <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className={`flex flex-col gap-4 ${className}`}>
             {/* Summary Card */}
             <Card>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Usage Statistics</h3>
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="m-0 text-lg font-semibold">Usage Statistics</h3>
                     {onReset && (
                         <Button variant="ghost" size="sm" onClick={() => onReset()}>
                             Reset All
@@ -41,51 +41,30 @@ export const UsageStats = ({
                     )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-                    <div
-                        style={{
-                            padding: '16px',
-                            backgroundColor: '#f9fafb',
-                            borderRadius: '8px',
-                            textAlign: 'center',
-                        }}
-                    >
-                        <div style={{ fontSize: '24px', fontWeight: 700, color: '#3b82f6' }}>
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="p-4 bg-muted-bg rounded-lg text-center">
+                        <div className="text-2xl font-bold text-accent">
                             {stats.totalCalls}
                         </div>
-                        <div style={{ fontSize: '14px', color: '#6b7280' }}>API Calls</div>
+                        <div className="text-sm text-muted">API Calls</div>
                     </div>
 
-                    <div
-                        style={{
-                            padding: '16px',
-                            backgroundColor: '#f9fafb',
-                            borderRadius: '8px',
-                            textAlign: 'center',
-                        }}
-                    >
-                        <div style={{ fontSize: '24px', fontWeight: 700, color: '#8b5cf6' }}>
+                    <div className="p-4 bg-muted-bg rounded-lg text-center">
+                        <div className="text-2xl font-bold text-accent">
                             {formatNumber(stats.totalInputTokens + stats.totalOutputTokens)}
                         </div>
-                        <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Tokens</div>
+                        <div className="text-sm text-muted">Total Tokens</div>
                     </div>
 
-                    <div
-                        style={{
-                            padding: '16px',
-                            backgroundColor: '#f0fdf4',
-                            borderRadius: '8px',
-                            textAlign: 'center',
-                        }}
-                    >
-                        <div style={{ fontSize: '24px', fontWeight: 700, color: '#059669' }}>
+                    <div className="p-4 bg-profit/10 rounded-lg text-center">
+                        <div className="text-2xl font-bold text-profit">
                             {formatCost(stats.estimatedCost)}
                         </div>
-                        <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Cost</div>
+                        <div className="text-sm text-muted">Total Cost</div>
                     </div>
                 </div>
 
-                <div style={{ marginTop: '16px', fontSize: '13px', color: '#9ca3af' }}>
+                <div className="mt-4 text-[13px] text-muted">
                     Last updated: {new Date(stats.lastUpdated).toLocaleString()}
                 </div>
             </Card>
@@ -93,11 +72,11 @@ export const UsageStats = ({
             {/* Per-Provider Breakdown */}
             {providerEntries.length > 0 && (
                 <Card>
-                    <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 600 }}>
+                    <h4 className="m-0 mb-4 text-base font-semibold">
                         By Provider
                     </h4>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div className="flex flex-col gap-3">
                         {providerEntries.map(([providerId, providerStats]) => {
                             if (!providerStats) return null;
                             const providerInfo = getProvider(providerId);
@@ -108,35 +87,23 @@ export const UsageStats = ({
                             return (
                                 <div
                                     key={providerId}
-                                    style={{
-                                        padding: '12px',
-                                        backgroundColor: '#f9fafb',
-                                        borderRadius: '8px',
-                                    }}
+                                    className="p-3 bg-muted-bg rounded-lg"
                                 >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span style={{ fontWeight: 500 }}>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium">
                                                 {providerInfo?.name ?? providerId}
                                             </span>
                                             <Badge variant="secondary">{providerStats.model}</Badge>
                                         </div>
-                                        <span style={{ fontWeight: 600, color: '#059669' }}>
+                                        <span className="font-semibold text-profit">
                                             {formatCost(providerStats.cost)}
                                         </span>
                                     </div>
 
                                     <Progress value={percentage} max={100} />
 
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            marginTop: '8px',
-                                            fontSize: '13px',
-                                            color: '#6b7280',
-                                        }}
-                                    >
+                                    <div className="flex justify-between mt-2 text-[13px] text-muted">
                                         <span>{providerStats.calls} calls</span>
                                         <span>
                                             {formatNumber(providerStats.inputTokens)} in / {formatNumber(providerStats.outputTokens)} out
@@ -144,7 +111,7 @@ export const UsageStats = ({
                                     </div>
 
                                     {onReset && (
-                                        <div style={{ marginTop: '8px' }}>
+                                        <div className="mt-2">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"

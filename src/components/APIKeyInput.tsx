@@ -11,6 +11,7 @@ import { useProviderValidation } from '../hooks';
  */
 export const APIKeyInput = ({
     provider,
+    model,
     value,
     onChange,
     onValidate,
@@ -23,7 +24,7 @@ export const APIKeyInput = ({
     const [showKey, setShowKey] = useState(false);
     const [touched, setTouched] = useState(false);
 
-    const { validateApiKey, isValidating, lastError, clearError } = useProviderValidation();
+    const { validateApiKey, isValidating, lastError, lastSuccess, clearError } = useProviderValidation();
 
     const providerInfo = getProvider(provider);
     const placeholder = providerInfo?.apiKeyPlaceholder ?? 'Enter your API key';
@@ -38,34 +39,26 @@ export const APIKeyInput = ({
     );
 
     const handleValidate = useCallback(async () => {
-        const result = await validateApiKey(provider, value);
+        const result = await validateApiKey(provider, value, model);
         onValidate?.(result.isValid);
-    }, [validateApiKey, provider, value, onValidate]);
+    }, [validateApiKey, provider, value, model, onValidate]);
 
     const displayError = externalError ?? (touched ? lastError : undefined) ?? undefined;
 
     const toggleVisibility = () => setShowKey(!showKey);
 
     const EyeIcon = showKey
-        ? (icons?.eyeOff ?? <span style={{ cursor: 'pointer', fontWeight: 'bold' }}>Hide</span>)
-        : (icons?.eye ?? <span style={{ cursor: 'pointer', fontWeight: 'bold' }}>Show</span>);
+        ? (icons?.eyeOff ?? <span className="cursor-pointer font-bold">Hide</span>)
+        : (icons?.eye ?? <span className="cursor-pointer font-bold">Show</span>);
 
     return (
-        <div className={className} style={{ width: '100%' }}>
-            <label
-                style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: '#374151',
-                    marginBottom: '4px',
-                }}
-            >
+        <div className={`w-full ${className}`}>
+            <label className="block text-sm font-medium text-foreground mb-1">
                 API Key
             </label>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{ flex: 1, position: 'relative' }}>
+            <div className="flex gap-2">
+                <div className="flex-1 relative">
                     <TextInput
                         type={showKey ? 'text' : 'password'}
                         value={value}
@@ -75,7 +68,7 @@ export const APIKeyInput = ({
                         rightIcon={
                             <div
                                 onClick={toggleVisibility}
-                                style={{ cursor: 'pointer' }}
+                                className="cursor-pointer"
                             >
                                 {EyeIcon}
                             </div>
@@ -93,26 +86,28 @@ export const APIKeyInput = ({
             </div>
 
             {providerInfo?.docsUrl && (
-                <div style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
+                <div className="mt-2 text-[13px] text-muted">
                     Get your API key from{' '}
                     <a
                         href={providerInfo.docsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: '#3b82f6', textDecoration: 'underline' }}
+                        className="text-accent underline"
                     >
                         {providerInfo.name} Console
                     </a>
                 </div>
             )}
 
-            {displayError && (
-                <div style={{ marginTop: '8px' }}>
-                    <Alert variant="error">
-                        {displayError}
+            {lastSuccess && !displayError && (
+                <div className="mt-2">
+                    <Alert variant="success">
+                        API key is valid!
                     </Alert>
                 </div>
             )}
+
+
         </div>
     );
 };

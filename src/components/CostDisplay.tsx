@@ -24,64 +24,36 @@ export const CostDisplay = ({
     const monthlyCost = estimateMonthlyCost(provider, model, analysesPerMonth);
 
     return (
-        <div
-            className={className}
-            style={{
-                padding: '16px',
-                backgroundColor: '#f0fdf4',
-                border: '1px solid #bbf7d0',
-                borderRadius: '8px',
-            }}
-        >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>$</span>
-                <span style={{ fontWeight: 600, fontSize: '16px' }}>Cost Estimate</span>
+        <div className={`p-4 bg-profit/10 border border-profit/30 rounded-lg ${className}`}>
+            <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg font-bold">$</span>
+                <span className="font-semibold text-base">Cost Estimate</span>
             </div>
 
-            <div style={{ display: 'grid', gap: '12px' }}>
+            <div className="grid gap-3">
                 {/* Per Analysis Cost */}
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                    }}
-                >
-                    <span style={{ color: '#374151' }}>Per analysis</span>
-                    <span style={{ fontWeight: 600, color: '#059669', fontSize: '18px' }}>
+                <div className="flex justify-between items-center">
+                    <span className="text-foreground">Per analysis</span>
+                    <span className="font-semibold text-profit text-lg">
                         ~{formatCost(perAnalysisCost)}
                     </span>
                 </div>
 
                 {/* Monthly Estimate */}
                 {showMonthlyEstimate && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            paddingTop: '12px',
-                            borderTop: '1px solid #bbf7d0',
-                        }}
-                    >
-                        <span style={{ color: '#374151' }}>
+                    <div className="flex justify-between items-center pt-3 border-t border-profit/30">
+                        <span className="text-foreground">
                             Est. monthly ({analysesPerMonth} analyses)
                         </span>
-                        <span style={{ fontWeight: 600, color: '#059669' }}>
+                        <span className="font-semibold text-profit">
                             ~{formatCost(monthlyCost)}
                         </span>
                     </div>
                 )}
 
                 {/* Cost Tier */}
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                    }}
-                >
-                    <span style={{ color: '#374151' }}>Cost tier</span>
+                <div className="flex justify-between items-center">
+                    <span className="text-foreground">Cost tier</span>
                     <Badge
                         variant={
                             modelInfo.costTier === 'budget' ? 'success' :
@@ -95,15 +67,7 @@ export const CostDisplay = ({
             </div>
 
             {/* Pricing Details */}
-            <div
-                style={{
-                    marginTop: '12px',
-                    paddingTop: '12px',
-                    borderTop: '1px solid #bbf7d0',
-                    fontSize: '13px',
-                    color: '#6b7280',
-                }}
-            >
+            <div className="mt-3 pt-3 border-t border-profit/30 text-[13px] text-muted">
                 <div>Input: ${modelInfo.pricing.inputCostPer1M.toFixed(2)}/1M tokens</div>
                 <div>Output: ${modelInfo.pricing.outputCostPer1M.toFixed(2)}/1M tokens</div>
             </div>

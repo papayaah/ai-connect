@@ -25,9 +25,9 @@ export const ChromeAIStatus = ({
 
     if (!isInitialized) {
         return (
-            <div className={className} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className={`flex items-center gap-2 ${className}`}>
                 <Loader size="sm" />
-                <span style={{ color: '#6b7280', fontSize: '14px' }}>Checking Chrome AI availability...</span>
+                <span className="text-muted text-sm">Checking Chrome AI availability...</span>
             </div>
         );
     }
@@ -37,11 +37,11 @@ export const ChromeAIStatus = ({
             case 'available':
                 return (
                     <Alert variant="success">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {icons?.check ?? <span style={{ fontWeight: 'bold' }}>OK</span>}
+                        <div className="flex items-center gap-2">
+                            {icons?.check ?? <span className="font-bold">OK</span>}
                             <div>
                                 <strong>Chrome AI Available</strong>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '13px', opacity: 0.9 }}>
+                                <p className="mt-1 mb-0 text-[13px] opacity-90">
                                     Your browser supports offline AI. Completely private and free!
                                 </p>
                             </div>
@@ -53,19 +53,19 @@ export const ChromeAIStatus = ({
                 return (
                     <Alert variant="warning">
                         <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                {icons?.info ?? <span style={{ fontWeight: 'bold' }}>Info:</span>}
+                            <div className="flex items-center gap-2 mb-2">
+                                {icons?.info ?? <span className="font-bold">Info:</span>}
                                 <strong>Chrome AI Needs Download</strong>
                             </div>
-                            <p style={{ margin: '0 0 12px 0', fontSize: '13px' }}>
+                            <p className="mb-3 mt-0 text-[13px]">
                                 Chrome AI is supported but the model needs to be downloaded first.
                             </p>
-                            <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '13px' }}>
+                            <ol className="m-0 pl-5 text-[13px]">
                                 <li>Open Chrome Settings</li>
                                 <li>Go to "AI" or "Experimental AI features"</li>
                                 <li>Enable and download the built-in AI model</li>
                             </ol>
-                            <div style={{ marginTop: '12px' }}>
+                            <div className="mt-3">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -82,11 +82,11 @@ export const ChromeAIStatus = ({
                 return (
                     <Alert variant="info">
                         <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                {icons?.info ?? <span style={{ fontWeight: 'bold' }}>Info:</span>}
+                            <div className="flex items-center gap-2 mb-2">
+                                {icons?.info ?? <span className="font-bold">Info:</span>}
                                 <strong>Chrome AI Not Available</strong>
                             </div>
-                            <p style={{ margin: 0, fontSize: '13px' }}>
+                            <p className="m-0 text-[13px]">
                                 Chrome AI requires Chrome 127+ with experimental features enabled.
                                 Don't worry - you can still use the shared API or your own API key!
                             </p>
@@ -97,12 +97,12 @@ export const ChromeAIStatus = ({
             case 'error':
                 return (
                     <Alert variant="error">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {icons?.alertCircle ?? <span style={{ fontWeight: 'bold' }}>Error:</span>}
+                        <div className="flex items-center gap-2">
+                            {icons?.alertCircle ?? <span className="font-bold">Error:</span>}
                             <div>
                                 <strong>Error Checking Chrome AI</strong>
                                 {error && (
-                                    <p style={{ margin: '4px 0 0 0', fontSize: '13px' }}>{error}</p>
+                                    <p className="mt-1 mb-0 text-[13px]">{error}</p>
                                 )}
                             </div>
                         </div>

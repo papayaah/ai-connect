@@ -48,11 +48,11 @@ export const ProviderCard = ({
     const getProviderIcon = () => {
         switch (providerType) {
             case 'chrome':
-                return icons?.cpu ?? <span style={{ fontSize: '16px', fontWeight: 'bold' }}>CPU</span>;
+                return icons?.cpu ?? <span className="text-base font-bold">CPU</span>;
             case 'hosted-api':
-                return icons?.cloud ?? <span style={{ fontSize: '16px', fontWeight: 'bold' }}>API</span>;
+                return icons?.cloud ?? <span className="text-base font-bold">API</span>;
             case 'custom-llm':
-                return icons?.key ?? <span style={{ fontSize: '16px', fontWeight: 'bold' }}>KEY</span>;
+                return icons?.key ?? <span className="text-base font-bold">KEY</span>;
             default:
                 return null;
         }
@@ -65,33 +65,23 @@ export const ProviderCard = ({
             disabled={!available}
             className={className}
         >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div
-                    style={{
-                        fontSize: '24px',
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '40px',
-                        height: '40px',
-                    }}
-                >
+            <div className="flex items-start gap-3">
+                <div className="text-2xl shrink-0 flex items-center justify-center w-10 h-10">
                     {getProviderIcon()}
                 </div>
-                <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 600, fontSize: '16px' }}>{getProviderTitle()}</span>
+                <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-base">{getProviderTitle()}</span>
                         {badge && <Badge variant="primary">{badge}</Badge>}
                         {recommended && <Badge variant="success">Recommended</Badge>}
                         {!available && <Badge variant="warning">Unavailable</Badge>}
                     </div>
-                    <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+                    <p className="m-0 text-muted text-sm">
                         {getProviderDescription()}
                     </p>
                 </div>
                 {selected && (
-                    <div style={{ color: '#3b82f6', flexShrink: 0, fontWeight: 'bold' }}>
+                    <div className="text-accent shrink-0 font-bold">
                         {icons?.check ?? 'Selected'}
                     </div>
                 )}

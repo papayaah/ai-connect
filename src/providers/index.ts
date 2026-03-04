@@ -1,7 +1,7 @@
 import type { LLMProvider, ProviderInfo, ModelInfo, PricingModel } from '../types';
 
 // ============================================================================
-// Pricing Data (as of December 2024)
+// Pricing Data (as of March 2026)
 // ============================================================================
 
 const createPricing = (
@@ -13,7 +13,7 @@ const createPricing = (
     outputCostPer1M,
     cachedInputCostPer1M,
     currency: 'USD',
-    lastUpdated: '2024-12-01',
+    lastUpdated: '2026-03-01',
 });
 
 // Average tokens per symptom analysis (~200-500 tokens)
@@ -34,42 +34,42 @@ const getCostTier = (pricing: PricingModel): 'budget' | 'standard' | 'premium' =
 };
 
 // ============================================================================
-// OpenAI Models
+// OpenAI Models (2025+)
 // ============================================================================
 
 const openaiModels: ModelInfo[] = [
     {
-        id: 'gpt-4o',
-        name: 'GPT-4o',
-        description: 'Most capable model for complex tasks',
-        pricing: createPricing(2.50, 10.00, 1.25),
-        contextLength: 128000,
+        id: 'gpt-4.1',
+        name: 'GPT-4.1',
+        description: 'Smartest non-reasoning model, 1M context',
+        pricing: createPricing(2.00, 8.00),
+        contextLength: 1000000,
         costTier: 'standard',
         recommended: true,
     },
     {
-        id: 'gpt-4o-mini',
-        name: 'GPT-4o Mini',
-        description: 'Fast and affordable for most tasks',
-        pricing: createPricing(0.15, 0.60, 0.075),
-        contextLength: 128000,
+        id: 'gpt-4.1-mini',
+        name: 'GPT-4.1 Mini',
+        description: 'Fast and affordable, 1M context',
+        pricing: createPricing(0.40, 1.60),
+        contextLength: 1000000,
         costTier: 'budget',
     },
     {
-        id: 'gpt-4-turbo',
-        name: 'GPT-4 Turbo',
-        description: 'Previous generation, still powerful',
-        pricing: createPricing(10.00, 30.00),
-        contextLength: 128000,
-        costTier: 'premium',
+        id: 'o4-mini',
+        name: 'o4 Mini',
+        description: 'Fast, cost-efficient reasoning',
+        pricing: createPricing(1.10, 4.40),
+        contextLength: 200000,
+        costTier: 'standard',
     },
     {
-        id: 'gpt-3.5-turbo',
-        name: 'GPT-3.5 Turbo',
-        description: 'Fast and cost-effective',
-        pricing: createPricing(0.50, 1.50),
-        contextLength: 16385,
-        costTier: 'budget',
+        id: 'o3',
+        name: 'o3',
+        description: 'Advanced reasoning for complex tasks',
+        pricing: createPricing(2.00, 8.00),
+        contextLength: 200000,
+        costTier: 'standard',
     },
 ].map(m => ({
     ...m,
@@ -78,32 +78,40 @@ const openaiModels: ModelInfo[] = [
 }));
 
 // ============================================================================
-// Anthropic Models
+// Anthropic Models (2025+)
 // ============================================================================
 
 const anthropicModels: ModelInfo[] = [
     {
-        id: 'claude-sonnet-4-20250514',
-        name: 'Claude Sonnet 4',
+        id: 'claude-sonnet-4-6',
+        name: 'Claude Sonnet 4.6',
         description: 'Best balance of speed and intelligence',
         pricing: createPricing(3.00, 15.00),
-        contextLength: 200000,
+        contextLength: 1000000,
         costTier: 'standard',
         recommended: true,
     },
     {
-        id: 'claude-opus-4-20250514',
-        name: 'Claude Opus 4',
+        id: 'claude-opus-4-6',
+        name: 'Claude Opus 4.6',
         description: 'Most powerful for complex reasoning',
-        pricing: createPricing(15.00, 75.00),
-        contextLength: 200000,
+        pricing: createPricing(5.00, 25.00),
+        contextLength: 1000000,
         costTier: 'premium',
     },
     {
-        id: 'claude-3-5-haiku-20241022',
-        name: 'Claude 3.5 Haiku',
+        id: 'claude-sonnet-4-5',
+        name: 'Claude Sonnet 4.5',
+        description: 'Fast and capable, proven in production',
+        pricing: createPricing(3.00, 15.00),
+        contextLength: 200000,
+        costTier: 'standard',
+    },
+    {
+        id: 'claude-haiku-4-5',
+        name: 'Claude Haiku 4.5',
         description: 'Fastest and most affordable',
-        pricing: createPricing(0.80, 4.00),
+        pricing: createPricing(1.00, 5.00),
         contextLength: 200000,
         costTier: 'budget',
     },
@@ -114,15 +122,31 @@ const anthropicModels: ModelInfo[] = [
 }));
 
 // ============================================================================
-// Google Models
+// Google Models (2025+)
 // ============================================================================
 
 const googleModels: ModelInfo[] = [
     {
-        id: 'gemini-2.0-flash',
-        name: 'Gemini 2.0 Flash',
-        description: 'Fast and efficient multimodal model',
-        pricing: createPricing(0.10, 0.40),
+        id: 'gemini-3.1-pro-preview',
+        name: 'Gemini 3.1 Pro',
+        description: 'Latest, most capable for complex reasoning',
+        pricing: createPricing(2.00, 12.00),
+        contextLength: 1000000,
+        costTier: 'standard',
+    },
+    {
+        id: 'gemini-3-flash-preview',
+        name: 'Gemini 3 Flash',
+        description: 'Fastest Gemini 3, great for structured tasks',
+        pricing: createPricing(0.50, 3.00),
+        contextLength: 1000000,
+        costTier: 'budget',
+    },
+    {
+        id: 'gemini-2.5-flash',
+        name: 'Gemini 2.5 Flash',
+        description: 'Fast and efficient, 1M context',
+        pricing: createPricing(0.15, 0.60),
         contextLength: 1000000,
         costTier: 'budget',
         recommended: true,
@@ -130,26 +154,18 @@ const googleModels: ModelInfo[] = [
     {
         id: 'gemini-2.5-pro',
         name: 'Gemini 2.5 Pro',
-        description: 'Most capable for complex reasoning',
+        description: 'Production-ready, complex reasoning',
         pricing: createPricing(1.25, 10.00),
         contextLength: 1000000,
         costTier: 'standard',
     },
     {
-        id: 'gemini-2.5-flash',
-        name: 'Gemini 2.5 Flash',
-        description: 'Balanced speed and capability',
-        pricing: createPricing(0.30, 2.50),
+        id: 'gemini-2.5-flash-lite',
+        name: 'Gemini 2.5 Flash Lite',
+        description: 'Most cost-efficient model',
+        pricing: createPricing(0.05, 0.20),
         contextLength: 1000000,
         costTier: 'budget',
-    },
-    {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Previous generation multimodal',
-        pricing: createPricing(1.25, 5.00),
-        contextLength: 2000000,
-        costTier: 'standard',
     },
 ].map(m => ({
     ...m,
@@ -158,7 +174,7 @@ const googleModels: ModelInfo[] = [
 }));
 
 // ============================================================================
-// Mistral Models
+// Mistral Models (2025+)
 // ============================================================================
 
 const mistralModels: ModelInfo[] = [
@@ -179,14 +195,6 @@ const mistralModels: ModelInfo[] = [
         contextLength: 128000,
         costTier: 'budget',
     },
-    {
-        id: 'open-mistral-nemo',
-        name: 'Mistral Nemo',
-        description: 'Open-source compatible',
-        pricing: createPricing(0.15, 0.15),
-        contextLength: 128000,
-        costTier: 'budget',
-    },
 ].map(m => ({
     ...m,
     estimatedCostPerAnalysis: calculateEstimatedCost(m.pricing),
@@ -194,7 +202,7 @@ const mistralModels: ModelInfo[] = [
 }));
 
 // ============================================================================
-// Cohere Models
+// Cohere Models (2025+)
 // ============================================================================
 
 const cohereModels: ModelInfo[] = [
@@ -215,14 +223,6 @@ const cohereModels: ModelInfo[] = [
         contextLength: 128000,
         costTier: 'budget',
     },
-    {
-        id: 'command',
-        name: 'Command',
-        description: 'Fast and efficient',
-        pricing: createPricing(1.00, 2.00),
-        contextLength: 4096,
-        costTier: 'budget',
-    },
 ].map(m => ({
     ...m,
     estimatedCostPerAnalysis: calculateEstimatedCost(m.pricing),
@@ -230,7 +230,7 @@ const cohereModels: ModelInfo[] = [
 }));
 
 // ============================================================================
-// xAI Models
+// xAI Models (2025+)
 // ============================================================================
 
 const xaiModels: ModelInfo[] = [
@@ -251,14 +251,6 @@ const xaiModels: ModelInfo[] = [
         contextLength: 131072,
         costTier: 'budget',
     },
-    {
-        id: 'grok-2',
-        name: 'Grok 2',
-        description: 'Previous generation',
-        pricing: createPricing(2.00, 10.00),
-        contextLength: 131072,
-        costTier: 'standard',
-    },
 ].map(m => ({
     ...m,
     estimatedCostPerAnalysis: calculateEstimatedCost(m.pricing),
@@ -266,7 +258,7 @@ const xaiModels: ModelInfo[] = [
 }));
 
 // ============================================================================
-// Perplexity Models
+// Perplexity Models (2025+)
 // ============================================================================
 
 const perplexityModels: ModelInfo[] = [
@@ -288,10 +280,10 @@ const perplexityModels: ModelInfo[] = [
         costTier: 'budget',
     },
     {
-        id: 'sonar-reasoning',
-        name: 'Sonar Reasoning',
+        id: 'sonar-reasoning-pro',
+        name: 'Sonar Reasoning Pro',
         description: 'Complex reasoning with search',
-        pricing: createPricing(1.00, 5.00),
+        pricing: createPricing(2.00, 8.00),
         contextLength: 128000,
         costTier: 'standard',
     },
@@ -302,26 +294,18 @@ const perplexityModels: ModelInfo[] = [
 }));
 
 // ============================================================================
-// OpenRouter Models (includes free models)
+// OpenRouter Models (2025+ including free models)
 // ============================================================================
 
 const openrouterModels: ModelInfo[] = [
     {
-        id: 'google/gemini-2.0-flash-exp:free',
-        name: 'Gemini 2.0 Flash (Free)',
+        id: 'google/gemini-2.5-flash:free',
+        name: 'Gemini 2.5 Flash (Free)',
         description: 'Free, 1M context, vision support',
         pricing: createPricing(0, 0),
         contextLength: 1000000,
         costTier: 'budget',
         recommended: true,
-    },
-    {
-        id: 'meta-llama/llama-3.3-70b-instruct:free',
-        name: 'Llama 3.3 70B (Free)',
-        description: 'Free, GPT-4 level performance',
-        pricing: createPricing(0, 0),
-        contextLength: 131072,
-        costTier: 'budget',
     },
     {
         id: 'qwen/qwen3-235b-a22b:free',
@@ -340,33 +324,41 @@ const openrouterModels: ModelInfo[] = [
         costTier: 'budget',
     },
     {
-        id: 'anthropic/claude-sonnet-4',
-        name: 'Claude Sonnet 4',
-        description: 'Best balance of speed and intelligence',
+        id: 'anthropic/claude-sonnet-4.6',
+        name: 'Claude Sonnet 4.6',
+        description: 'Latest Claude, fast and intelligent',
         pricing: createPricing(3.00, 15.00),
-        contextLength: 200000,
+        contextLength: 1000000,
         costTier: 'standard',
     },
     {
-        id: 'openai/gpt-4o',
-        name: 'GPT-4o',
-        description: 'Most capable OpenAI model',
-        pricing: createPricing(2.50, 10.00),
-        contextLength: 128000,
+        id: 'google/gemini-3.1-pro-preview',
+        name: 'Gemini 3.1 Pro',
+        description: 'Latest, most capable Gemini',
+        pricing: createPricing(2.00, 12.00),
+        contextLength: 1000000,
         costTier: 'standard',
     },
     {
-        id: 'openai/gpt-4o-mini',
-        name: 'GPT-4o Mini',
+        id: 'openai/gpt-4.1',
+        name: 'GPT-4.1',
+        description: 'Smartest non-reasoning, 1M context',
+        pricing: createPricing(2.00, 8.00),
+        contextLength: 1000000,
+        costTier: 'standard',
+    },
+    {
+        id: 'openai/gpt-4.1-mini',
+        name: 'GPT-4.1 Mini',
         description: 'Fast and affordable',
-        pricing: createPricing(0.15, 0.60),
-        contextLength: 128000,
+        pricing: createPricing(0.40, 1.60),
+        contextLength: 1000000,
         costTier: 'budget',
     },
     {
         id: 'google/gemini-2.5-flash',
         name: 'Gemini 2.5 Flash',
-        description: 'Balanced speed and capability',
+        description: 'Fast and capable, 1M context',
         pricing: createPricing(0.15, 0.60),
         contextLength: 1000000,
         costTier: 'budget',
@@ -385,9 +377,9 @@ export const providers: Record<LLMProvider, ProviderInfo> = {
     openai: {
         id: 'openai',
         name: 'OpenAI',
-        description: 'GPT-4o and GPT-3.5 models',
+        description: 'GPT-4.1 and o-series reasoning models',
         models: openaiModels,
-        defaultModel: 'gpt-4o-mini',
+        defaultModel: 'gpt-4.1-mini',
         apiKeyPattern: /^sk-[a-zA-Z0-9]{20,}$/,
         apiKeyPlaceholder: 'sk-...',
         docsUrl: 'https://platform.openai.com/api-keys',
@@ -395,9 +387,9 @@ export const providers: Record<LLMProvider, ProviderInfo> = {
     anthropic: {
         id: 'anthropic',
         name: 'Anthropic',
-        description: 'Claude Sonnet and Opus models',
+        description: 'Claude 4.6 Sonnet, Opus, and Haiku',
         models: anthropicModels,
-        defaultModel: 'claude-sonnet-4-20250514',
+        defaultModel: 'claude-sonnet-4-6',
         apiKeyPattern: /^sk-ant-[a-zA-Z0-9-]{20,}$/,
         apiKeyPlaceholder: 'sk-ant-...',
         docsUrl: 'https://console.anthropic.com/settings/keys',
@@ -405,9 +397,9 @@ export const providers: Record<LLMProvider, ProviderInfo> = {
     google: {
         id: 'google',
         name: 'Google AI',
-        description: 'Gemini 2.0 and 1.5 models',
+        description: 'Gemini 3 and 2.5 Flash, Pro models',
         models: googleModels,
-        defaultModel: 'gemini-2.0-flash',
+        defaultModel: 'gemini-2.5-flash',
         apiKeyPattern: /^AIza[a-zA-Z0-9_-]{35}$/,
         apiKeyPlaceholder: 'AIza...',
         docsUrl: 'https://aistudio.google.com/app/apikey',
@@ -433,7 +425,7 @@ export const providers: Record<LLMProvider, ProviderInfo> = {
     xai: {
         id: 'xai',
         name: 'xAI',
-        description: 'Grok models',
+        description: 'Grok 3 models',
         models: xaiModels,
         defaultModel: 'grok-3-mini',
         apiKeyPlaceholder: 'xai-...',
@@ -454,7 +446,7 @@ export const providers: Record<LLMProvider, ProviderInfo> = {
         name: 'OpenRouter',
         description: '300+ models including free ones',
         models: openrouterModels,
-        defaultModel: 'google/gemini-2.0-flash-exp:free',
+        defaultModel: 'google/gemini-2.5-flash:free',
         apiKeyPattern: /^sk-or-v1-[a-f0-9]{64}$/,
         apiKeyPlaceholder: 'sk-or-v1-...',
         docsUrl: 'https://openrouter.ai/keys',

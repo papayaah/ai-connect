@@ -374,6 +374,7 @@ export interface ProviderCardProps {
 /** Props for APIKeyInput component */
 export interface APIKeyInputProps {
     provider: LLMProvider;
+    model?: string;
     value: string;
     onChange: (value: string) => void;
     onValidate?: (isValid: boolean) => void;

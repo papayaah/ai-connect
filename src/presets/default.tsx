@@ -109,53 +109,56 @@ export const defaultPreset: ComponentPreset = {
         disabled,
         className = '',
     }: TextInputProps) => (
-        <div style={{ position: 'relative', width: '100%' }} className={className}>
-            {leftIcon && (
-                <div
+        <div style={{ width: '100%' }} className={className}>
+            <div style={{ position: 'relative', width: '100%' }}>
+                {leftIcon && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: '12px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: '#9ca3af',
+                            pointerEvents: 'none',
+                        }}
+                    >
+                        {leftIcon}
+                    </div>
+                )}
+                <input
+                    type={type}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    disabled={disabled}
                     style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        pointerEvents: 'none',
+                        width: '100%',
+                        padding: '8px 12px',
+                        paddingLeft: leftIcon ? '40px' : '12px',
+                        paddingRight: rightIcon ? '40px' : '12px',
+                        border: `1px solid ${error ? '#ef4444' : '#d1d5db'}`,
+                        borderRadius: '6px',
+                        fontSize: '16px',
+                        outline: 'none',
+                        opacity: disabled ? 0.5 : 1,
+                        boxSizing: 'border-box',
                     }}
-                >
-                    {leftIcon}
-                </div>
-            )}
-            <input
-                type={type}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-                disabled={disabled}
-                style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    paddingLeft: leftIcon ? '40px' : '12px',
-                    paddingRight: rightIcon ? '40px' : '12px',
-                    border: `1px solid ${error ? '#ef4444' : '#d1d5db'}`,
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    outline: 'none',
-                    opacity: disabled ? 0.5 : 1,
-                    boxSizing: 'border-box',
-                }}
-            />
-            {rightIcon && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        right: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                    }}
-                >
-                    {rightIcon}
-                </div>
-            )}
+                />
+                {rightIcon && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: '12px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: '#9ca3af',
+                            pointerEvents: rightIcon === null ? 'none' : 'auto',
+                        }}
+                    >
+                        {rightIcon}
+                    </div>
+                )}
+            </div>
             {error && (
                 <div style={{ color: '#ef4444', fontSize: '14px', marginTop: '4px' }}>
                     {error}

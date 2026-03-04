@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type {
     AIProviderSelectorProps,
     AIProviderType,
@@ -16,6 +16,7 @@ import { APIKeyInput } from './APIKeyInput';
 import { CostDisplay } from './CostDisplay';
 import { ChromeAIStatus } from './ChromeAIStatus';
 import { useChromeAI, useProviderPricing } from '../hooks';
+import { useAIManagementContextOptional } from './AIManagementProvider';
 
 /**
  * Main AI Provider Selector component
@@ -41,14 +42,17 @@ export const AIProviderSelector = ({
     analysesPerMonth = 10,
 }: AIProviderSelectorProps) => {
     const { Button, Select, Alert } = preset;
+    const aiContext = useAIManagementContextOptional();
 
     // State
     const [selectedType, setSelectedType] = useState<AIProviderType>(defaultProvider ?? 'hosted-api');
     const [selectedLLMProvider, setSelectedLLMProvider] = useState<LLMProvider>('openai');
     const [selectedModel, setSelectedModel] = useState<string>('');
     const [apiKey, setApiKey] = useState<string>('');
-    const [isApiKeyValid, setIsApiKeyValid] = useState<boolean>(false);
     const [chromeAIStatus, setChromeAIStatus] = useState<ChromeAIStatusType>('checking');
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [hasInitialized, setHasInitialized] = useState(false);
+    const isFirstProviderChange = useRef(true);
 
     // Hooks - Chrome AI status check
     useChromeAI();
@@ -57,16 +61,42 @@ export const AIProviderSelector = ({
         customPricing,
     });
 
+    // Initialize from context on mount
+    useEffect(() => {
+        if (!hasInitialized && aiContext?.config) {
+            const { config } = aiContext;
+            setSelectedType(config.type);
+
+            if (config.type === 'custom-llm' && config.customLLM) {
+                // IMPORTANT: Set initial model first
+                setSelectedLLMProvider(config.customLLM.provider);
+                setSelectedModel(config.customLLM.model);
+                setApiKey(config.customLLM.apiKey);
+            }
+            setHasInitialized(true);
+        } else if (!hasInitialized && aiContext && !aiContext.config) {
+            // Context is ready but has no config, mark as initialized to allow defaults
+            setHasInitialized(true);
+        }
+    }, [aiContext, hasInitialized]);
+
     // Get available LLM providers
     const availableProviders = getAllProviders().filter(
         (p) => !enabledProviders || enabledProviders.includes(p.id)
     );
 
-    // Set default model when provider changes
+    // Set default model when provider changes - ONLY if not initializing
     useEffect(() => {
-        const defaultModel = getDefaultModel(selectedLLMProvider);
-        setSelectedModel(defaultModel);
-    }, [selectedLLMProvider]);
+        if (hasInitialized) {
+            // Skip the very first provider change if it was part of initialization
+            if (isFirstProviderChange.current) {
+                isFirstProviderChange.current = false;
+                return;
+            }
+            const defaultModel = getDefaultModel(selectedLLMProvider);
+            setSelectedModel(defaultModel);
+        }
+    }, [selectedLLMProvider, hasInitialized]);
 
     // Notify cost estimate changes
     useEffect(() => {
@@ -90,7 +120,6 @@ export const AIProviderSelector = ({
 
     // Handle API key validation
     const handleApiKeyValidate = useCallback((isValid: boolean) => {
-        setIsApiKeyValid(isValid);
         onValidationComplete?.(isValid, selectedLLMProvider);
     }, [selectedLLMProvider, onValidationComplete]);
 
@@ -130,9 +159,11 @@ export const AIProviderSelector = ({
         }
 
         onProviderSelect(config);
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
     }, [selectedType, selectedLLMProvider, selectedModel, apiKey, onProviderSelect]);
 
-    // Check if can proceed
+    // Check if can proceed — allow saving with any non-empty API key (Validate is optional)
     const canProceed = () => {
         switch (selectedType) {
             case 'chrome':
@@ -140,21 +171,21 @@ export const AIProviderSelector = ({
             case 'hosted-api':
                 return true;
             case 'custom-llm':
-                return isApiKeyValid && selectedModel;
+                return apiKey.trim().length > 0 && !!selectedModel;
             default:
                 return false;
         }
     };
 
     return (
-        <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className={`flex flex-col gap-6 ${className}`}>
             {/* Provider Type Selection */}
             <div>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 600 }}>
+                <h3 className="m-0 mb-4 text-lg font-semibold">
                     Choose Your AI Provider
                 </h3>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="flex flex-col gap-3">
                     {/* Chrome AI Option */}
                     <ProviderCard
                         providerType="chrome"
@@ -204,7 +235,7 @@ export const AIProviderSelector = ({
                 <Alert variant="info">
                     <div>
                         <strong>Hosted API Service</strong>
-                        <p style={{ margin: '8px 0 0 0', fontSize: '14px' }}>
+                        <p className="mt-2 mb-0 text-sm">
                             Use our hosted Gemini API service. Usage is billed per request.
                             No setup required - just start using the app!
                         </p>
@@ -214,7 +245,7 @@ export const AIProviderSelector = ({
 
             {/* Custom LLM Configuration (when selected) */}
             {selectedType === 'custom-llm' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="flex flex-col gap-4">
                     {/* Provider Selection */}
                     <Select
                         value={selectedLLMProvider}
@@ -238,6 +269,7 @@ export const AIProviderSelector = ({
                     {/* API Key Input */}
                     <APIKeyInput
                         provider={selectedLLMProvider}
+                        model={selectedModel}
                         value={apiKey}
                         onChange={setApiKey}
                         onValidate={handleApiKeyValidate}
@@ -257,7 +289,7 @@ export const AIProviderSelector = ({
 
                     {/* Cost Tracking Notice */}
                     <Alert variant="info">
-                        <div style={{ fontSize: '14px' }}>
+                        <div className="text-sm">
                             {icons?.dollarSign ?? '$'} Usage and costs will be tracked locally for your reference.
                         </div>
                     </Alert>
@@ -274,8 +306,14 @@ export const AIProviderSelector = ({
             >
                 {selectedType === 'chrome' && 'Use Chrome AI'}
                 {selectedType === 'hosted-api' && 'Use Hosted API'}
-                {selectedType === 'custom-llm' && 'Save Configuration'}
+                {selectedType === 'custom-llm' && (saveSuccess ? 'Saved!' : 'Save Configuration')}
             </Button>
+
+            {saveSuccess && (
+                <Alert variant="success">
+                    Configuration saved successfully!
+                </Alert>
+            )}
         </div>
     );
 };
