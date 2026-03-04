@@ -573,7 +573,8 @@ export const formatCost = (cost: number): string => {
 /**
  * Format large numbers (tokens, etc.)
  */
-export const formatNumber = (num: number): string => {
+export const formatNumber = (num: number | null | undefined): string => {
+    if (num === null || num === undefined) return '0';
     if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
     if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
     return num.toString();
