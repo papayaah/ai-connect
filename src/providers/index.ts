@@ -564,6 +564,7 @@ export const getCostTierLabel = (tier: 'budget' | 'standard' | 'premium'): strin
  * Format cost as currency string
  */
 export const formatCost = (cost: number): string => {
+    if (cost === null || cost === undefined || isNaN(cost) || cost === 0) return '$0.00';
     if (cost < 0.001) return '<$0.001';
     if (cost < 0.01) return `$${cost.toFixed(4)}`;
     if (cost < 1) return `$${cost.toFixed(3)}`;
@@ -574,7 +575,7 @@ export const formatCost = (cost: number): string => {
  * Format large numbers (tokens, etc.)
  */
 export const formatNumber = (num: number | null | undefined): string => {
-    if (num === null || num === undefined) return '0';
+    if (num === null || num === undefined || isNaN(num)) return '0';
     if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
     if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
     return num.toString();
